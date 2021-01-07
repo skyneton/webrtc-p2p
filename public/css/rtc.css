@@ -1,0 +1,11 @@
+html {
+    margin-bottom: 15px;
+}
+footer {
+    position: fixed;
+    bottom: 0;
+}
+
+video[class$="_video"] {
+	transform: scaleX(-1);
+}
