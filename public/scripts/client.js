@@ -6,18 +6,40 @@ function readOnly(obj) {
 let key = new readOnly(document.getElementsByClassName("getSessionKey")[0].innerHTML);
 document.getElementsByClassName("getSessionKey")[0].remove();
 
+let beforeunload = false;
+
+window.onbeforeunload = () => {
+    beforeunload = true;
+    if(socket.connected) socket.disconnect();
+}
+
 socket.on("connect", () => {
     socket.emit("session", key.get());
     key = undefined;
-})
+});
+
+socket.on("disconnect", () => {
+    if(!beforeunload) {
+        alert("서버 연결이 중단되었습니다.");
+        location.reload();
+    }
+});
 
 socket.on("JoinRoom", uid => {
     userBoxCreate(uid);
 });
 
 socket.on("serverError", id => {
+    closeState();
     switch(id) {
-        case 1: alert("다른 브라우저에서 접속중입니다.");
+        case 1:
+            alert("다른 브라우저에서 접속중입니다."); break;
+        case 2:
+            alert("존재하지 않는 키값입니다."); break;
+        case 3:
+            alert("로그인을 해주세요"); break;
+        case 4:
+            alert("계정이 사용중입니다."); break;
     }
 })
 
@@ -48,7 +70,7 @@ socket.on("PlayerDisconnection", uid => {
         peers[uid].close();
         delete peers[uid];
     }
-})
+});
 
 socket.on("RTCConnection", uid => {
     if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid);
@@ -154,8 +176,9 @@ socket.on("chat", packet => {
     msgbox.appendChild(info);
     msgbox.appendChild(msg);
 
+    const autoScroll = document.getElementsByClassName("chatlistbox")[0].scrollTop >= document.getElementsByClassName("chatlistbox")[0].scrollHeight - document.getElementsByClassName("chatlistbox")[0].offsetHeight - 100;
     document.getElementsByClassName("chatlistbox")[0].appendChild(msgbox);
-    if(document.getElementsByClassName("chatlistbox")[0].scrollTop >= document.getElementsByClassName("chatlistbox")[0].scrollHeight - document.getElementsByClassName("chatlistbox")[0].offsetHeight - 10) {
+    if(autoScroll) {
         document.getElementsByClassName("chatlistbox")[0].scrollTop = document.getElementsByClassName("chatlistbox")[0].scrollHeight;
     }
 });

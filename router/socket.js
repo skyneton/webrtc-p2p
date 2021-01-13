@@ -10,7 +10,10 @@ module.exports = (io) => {
             log("::Socket Disconnect:: " + client.handshake.address);
             io.sockets.emit("PlayerDisconnection", client.id);
 
-            if(client.key) session.used.splice(session.used.indexOf(client.key), 1);
+            if(client.key) {
+                session.used.splice(session.used.indexOf(client.key), 1);
+                delete session.data[client.key];
+            }
         });
         
         client.on("session", key => {
@@ -18,7 +21,23 @@ module.exports = (io) => {
                 client.emit("serverError", 1);
                 client.disconnect();
                 return;
-            }
+            }if(!session.data[key]) {
+                client.emit("serverError", 2);
+                client.disconnect();
+                return;
+            }//if(!session.data[key].uid) {
+            //     client.emit("serverError", 3);
+            //     client.disconnect();
+            //     return;
+            // }
+            // for(const skey in session.data) {
+            //     if(skey == key) continue;
+            //     if(session.data[skey] == session.data[key]) {
+            //         client.emit("serverError", 4);
+            //         client.disconnect();
+            //         return;
+            //     }
+            // }
 
             client.key = key;
             session.used.push(key);

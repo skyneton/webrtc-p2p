@@ -12,14 +12,17 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
     const full = document.getElementsByClassName("fullpagemode")[0];
     const basic = document.getElementsByClassName("defaultpagemode")[0];
     const sidemenu = document.getElementsByClassName("setting_box_left")[0];
+    const centermenu = document.getElementsByClassName("setting_box_center")[0];
     if(!!document.fullscreenElement) {
         basic.style.display = "inline";
         full.style.display = null;
         sidemenu.style.display = "none";
+        centermenu.style.display = "block";
     }else {
         basic.style.display = null;
         full.style.display = "inline";
         sidemenu.style.display = null;
+        centermenu.style.display = null;
     }
 }
 
@@ -67,4 +70,30 @@ document.getElementsByClassName("chat_send")[0].onclick = () => {
     document.getElementsByClassName("chat_input")[0].value = null;
 
     socket.emit("chat", chat);
+}
+
+document.getElementsByClassName("user_camera_toggle")[0].onclick = () => {
+    if(callState.hasVideo)
+        turnVideoState(!callState.video).then(result => {
+            if(!result && document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].removeAttribute("activity");
+            else if(result && !document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].setAttribute("activity", true);
+        });
+}
+
+
+document.getElementsByClassName("user_desktop_toggle")[0].disabled = !navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+document.getElementsByClassName("user_desktop_toggle")[0].onclick = () => {
+    if(!(!navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)))
+        turnDesktopState(!callState.desktop).then(result => {
+            if(!result && document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].removeAttribute("activity");
+            else if(result && !document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].setAttribute("activity", true);
+        });
+}
+
+document.getElementsByClassName("user_audio_toggle")[0].onclick = () => {
+    if(callState.hasAudio)
+        turnAudioState(!callState.audio).then(result => {
+            if(!result && document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].removeAttribute("activity");
+            else if(result && !document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].setAttribute("activity", true);
+        });
 }

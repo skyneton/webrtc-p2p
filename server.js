@@ -7,7 +7,7 @@ app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
 app.use(express.static('public'));
-app.use(require("./router/session").get());
+app.use(require("./router/session").session);
 
 // const bodyParser = require('body-parser'); //POST 방식 사용시
 // app.use(bodyParser.urlencoded({extended: true}));

@@ -60,137 +60,150 @@ navigator.mediaDevices.ondevicechange = event => {
 };
 
 const turnAudioState = (state = false) => {
-    if(state) {
-        const query = {
-            "audio": {
-                echoCancellation: true,
-                noiseSuppression: true,
-                sampleRate: 50000
-            }};
-        
-        navigator.mediaDevices.getUserMedia(query).then(function(stream) {
-            devices["Audio"] = stream;
-            addStream(devices["Audio"]);
-            callState.audio = state;
+    return new Promise(resolve => {
+        if(state) {
+            const query = {
+                "audio": {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 50000
+                }};
             
-            socket.emit("RTCConnection2");
-            socket.emit("audioStatus", {status: callState.audio, streamId: devices["Audio"].id});
+            navigator.mediaDevices.getUserMedia(query).then(function(stream) {
+                devices["Audio"] = stream;
+                addStream(devices["Audio"]);
+                callState.audio = state;
+                
+                socket.emit("RTCConnection2");
+                socket.emit("audioStatus", {status: callState.audio, streamId: devices["Audio"].id});
 
-            if(devices["Audio"].getAudioTracks().length > 0) {
-                devices["Audio"].getAudioTracks().onended = () => {
-                    turnAudioState(false);
+                if(devices["Audio"].getAudioTracks().length > 0) {
+                    devices["Audio"].getAudioTracks().onended = () => {
+                        turnAudioState(false);
+                    }
                 }
-            }
 
-        }).catch(function(err) {
-            console.log(err.name + ": " + err.message);
-        });
-    }else {
-        callState.audio = state;
-        socket.emit("RTCConnection");
-        socket.emit("audioStatus", {status: callState.audio, streamId: devices["Audio"].id});
-        devices["Audio"].getTracks().forEach(track => {
-            track.stop();
-        });
+                resolve(true);
 
-        delete devices["Audio"];
-    }
+            }).catch(function(err) {
+                resolve(false);
+            });
+        }else {
+            callState.audio = state;
+            socket.emit("RTCConnection");
+            socket.emit("audioStatus", {status: callState.audio, streamId: devices["Audio"].id});
+            devices["Audio"].getTracks().forEach(track => {
+                track.stop();
+            });
+
+            delete devices["Audio"];
+            resolve(false);
+        }
+    });
 }
 
 const turnDesktopState = (state = false) => {
-    if(state) {
-        const query = {
-            "video": {
-                "cursor": "always",
-                /*"width": {
-                    "max": 1024
-                }, "height": {
-                    "max": 720
-                }, */"frameRate": {
-                    "max": 60
+    return new Promise(resolve => {
+        if(state) {
+            const query = {
+                "video": {
+                    "cursor": "always",
+                    /*"width": {
+                        "max": 1024
+                    }, "height": {
+                        "max": 720
+                    }, */"frameRate": {
+                        "max": 60
+                    }
+                },
+                audio: {
+                    echCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 50000
                 }
-            },
-            audio: {
-                echCancellation: true,
-                noiseSuppression: true,
-                sampleRate: 50000
+            }
+
+            navigator.mediaDevices.getDisplayMedia(query).then(stream => {
+                devices["DesktopShare"] = stream;
+                addStream(devices["DesktopShare"]);
+                callState.desktop = state;
+
+                socket.emit("RTCConnection2");
+                socket.emit("desktopStatus", {status: callState.desktop, streamId: devices["DesktopShare"].id});
+
+                if(devices["DesktopShare"].getVideoTracks().length > 0)
+                    userDesktopVideoCreate(new MediaStream(devices["DesktopShare"].getVideoTracks()), socket.id);
+                
+                    devices["DesktopShare"].getVideoTracks()[0].onended = () => {
+                        turnDesktopState(false);
+                    }
+                    resolve(true);
+            }).catch(function(err) {
+                resolve(false);
+            });
+        }else {
+            callState.desktop = state;
+            socket.emit("desktopStatus", {status: callState.desktop, streamId: devices["DesktopShare"].id});
+            socket.emit("RTCConnection");
+
+            userDesktopVideoDelete(socket.id);
+
+            if(devices["DesktopShare"]) {
+                removeStream(devices["DesktopShare"]);
+                devices["DesktopShare"].getTracks().forEach(track => {
+                    track.stop();
+                });
+                delete devices["DesktopShare"];
+                resolve(false);
             }
         }
-
-        navigator.mediaDevices.getDisplayMedia(query).then(stream => {
-            devices["DesktopShare"] = stream;
-            addStream(devices["DesktopShare"]);
-            callState.desktop = state;
-
-            socket.emit("RTCConnection2");
-            socket.emit("desktopStatus", {status: callState.desktop, streamId: devices["DesktopShare"].id});
-
-            if(devices["DesktopShare"].getVideoTracks().length > 0)
-                userDesktopVideoCreate(new MediaStream(devices["DesktopShare"].getVideoTracks()), socket.id);
-            
-                devices["DesktopShare"].getVideoTracks()[0].onended = () => {
-                    turnDesktopState(false);
-                }
-        }).catch(function(err) {
-            console.log(err.name + ": " + err.message);
-        });
-    }else {
-        callState.desktop = state;
-        socket.emit("desktopStatus", {status: callState.desktop, streamId: devices["DesktopShare"].id});
-        socket.emit("RTCConnection");
-
-        userDesktopVideoDelete(socket.id);
-
-        if(devices["DesktopShare"]) {
-            removeStream(devices["DesktopShare"]);
-            devices["DesktopShare"].getTracks().forEach(track => {
-                track.stop();
-            });
-            delete devices["DesktopShare"];
-        }
-    }
+    });
 }
 
 const turnVideoState = (state = false) => {
-    if(state) {
-        const query = {
-            "video": {
-                /*"width": {
-                    "max": 1024
-                }, "height": {
-                    "max": 720
-                }, */"frameRate": {
-                    "max": 60
-                }
-            }};
-        
-        navigator.mediaDevices.getUserMedia(query).then(function(stream) {
-            devices["Video"] = stream;
-            addStream(devices["Video"]);
-            callState.video = state;
+    return new Promise(resolve => {
+        if(state) {
+            const query = {
+                "video": {
+                    /*"width": {
+                        "max": 1024
+                    }, "height": {
+                        "max": 720
+                    }, */"frameRate": {
+                        "max": 60
+                    }
+                }};
             
-            socket.emit("RTCConnection2");
-            socket.emit("videoStatus", {status: callState.video, streamId: devices["Video"].id});
+            navigator.mediaDevices.getUserMedia(query).then(function(stream) {
+                devices["Video"] = stream;
+                addStream(devices["Video"]);
+                callState.video = state;
+                
+                socket.emit("RTCConnection2");
+                socket.emit("videoStatus", {status: callState.video, streamId: devices["Video"].id});
 
-            if(devices["Video"].getAudioTracks().length > 0) {
-                devices["Video"].getAudioTracks().onended = () => {
-                    turnVideoState(false);
+                if(devices["Video"].getAudioTracks().length > 0) {
+                    devices["Video"].getAudioTracks().onended = () => {
+                        turnVideoState(false);
+                    }
                 }
-            }
-            userCamVideoCreate(devices["Video"], socket.id);
-        }).catch(function(err) {
-            console.log(err.name + ": " + err.message);
-        });
-    }else {
-        callState.video = state;
-        socket.emit("RTCConnection");
-        socket.emit("videoStatus", {status: callState.video, streamId: devices["Video"].id});
-        devices["Video"].getTracks().forEach(track => {
-            track.stop();
-        });
+                userCamVideoCreate(devices["Video"], socket.id);
+                resolve(true);
+            }).catch(function(err) {
+                resolve(false);
+            });
+        }else {
+            callState.video = state;
+            socket.emit("RTCConnection");
+            socket.emit("videoStatus", {status: callState.video, streamId: devices["Video"].id});
+            devices["Video"].getTracks().forEach(track => {
+                track.stop();
+            });
 
-        delete devices["Video"];
+            delete devices["Video"];
 
-        userCamVideoDelete(socket.id);
-    }
+            userCamVideoDelete(socket.id);
+            resolve(false);
+        }
+    });
 }
