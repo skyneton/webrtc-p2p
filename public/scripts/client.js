@@ -1,7 +1,24 @@
 const socket = io.connect();
+function readOnly(obj) {
+    this.get = () => { return obj; }
+}
+
+let key = new readOnly(document.getElementsByClassName("getSessionKey")[0].innerHTML);
+document.getElementsByClassName("getSessionKey")[0].remove();
+
+socket.on("connect", () => {
+    socket.emit("session", key.get());
+    key = undefined;
+})
 
 socket.on("JoinRoom", uid => {
     userBoxCreate(uid);
+});
+
+socket.on("serverError", id => {
+    switch(id) {
+        case 1: alert("다른 브라우저에서 접속중입니다.");
+    }
 })
 
 socket.on("PlayerConnection", uid => {

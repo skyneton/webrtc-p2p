@@ -182,6 +182,9 @@ const userBoxCreate = uid => {
 	if(container_loc.getElementsByClassName(`containerbox_${uid}`).length == 0) {
 		const container_box = document.createElement("div");
 		container_box.setAttribute("class", `containerbox_${uid} container_boxitem`);
+		const container_shape = document.createElement("div");
+		container_shape.setAttribute("class", "container_boxshape");
+		container_box.appendChild(container_shape);
 		container_loc.appendChild(container_box);
 	}
 

@@ -1,3 +1,4 @@
+const session = require("./session");
 module.exports = (io) => {
     io.sockets.on("connection", (client) => {
         log("::Socket Connection:: " + client.handshake.address);
@@ -8,8 +9,20 @@ module.exports = (io) => {
         client.on("disconnect", () => {
             log("::Socket Disconnect:: " + client.handshake.address);
             io.sockets.emit("PlayerDisconnection", client.id);
+
+            if(client.key) session.used.splice(session.used.indexOf(client.key), 1);
         });
         
+        client.on("session", key => {
+            if(session.used.includes(key)) {
+                client.emit("serverError", 1);
+                client.disconnect();
+                return;
+            }
+
+            client.key = key;
+            session.used.push(key);
+        });
 
         client.on("RTCConnection", () => {
             log("::RTCConnection::" + client.id);
