@@ -1,6 +1,11 @@
 const socket = io.connect();
 
+socket.on("JoinRoom", uid => {
+    userBoxCreate(uid);
+})
+
 socket.on("PlayerConnection", uid => {
+    userBoxCreate(uid);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
@@ -20,6 +25,7 @@ socket.on("PlayerDisconnection", uid => {
     userAudioDelete(uid);
     userDesktopVideoDelete(uid);
     userDesktopAudioDelete(uid);
+    userBoxDelete(uid);
 
     if(peers[uid]) {
         peers[uid].close();
@@ -28,6 +34,7 @@ socket.on("PlayerDisconnection", uid => {
 })
 
 socket.on("RTCConnection", uid => {
+    if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
@@ -35,19 +42,20 @@ socket.on("RTCConnection", uid => {
 
 socket.on("RTCData", (message, to)=>{
     if(message.type === "offer"){
-      if(!peers[to]) peers[to] = createPeerConnection();
-      peers[to].setRemoteDescription(new RTCSessionDescription(message));
+        userBoxCreate(to);
+        if(!peers[to]) peers[to] = createPeerConnection();
+        peers[to].setRemoteDescription(new RTCSessionDescription(message));
         doAnswer(peers[to], to);
         peers[to].socketId = to;
     }else if(message.type ==="answer" && peers[to]) {
-      peers[to].setRemoteDescription(new RTCSessionDescription(message));
+        peers[to].setRemoteDescription(new RTCSessionDescription(message));
     }else if(message.type ==="candidate" && peers[to]) {
-      const candidate = new RTCIceCandidate({
-        sdpMLineIndex : message.label,
-        candidate:message.candidate
-      });
-  
-      peers[to].addIceCandidate(candidate);
+        const candidate = new RTCIceCandidate({
+            sdpMLineIndex : message.label,
+            candidate:message.candidate
+        });
+        
+        peers[to].addIceCandidate(candidate);
     }
 });
 
@@ -103,6 +111,38 @@ socket.on("videoStatus", data => {
     videoStatusChange(data.streamId, data.uid);
 });
 
+socket.on("chat", packet => {
+    packet = JSON.parse(packet);
+    const msgbox = document.createElement("div");
+    msgbox.setAttribute("class", `send_${packet.sender} chatbox`);
+
+    const info = document.createElement("div");
+    info.setAttribute("class", "chatbox_top");
+
+    const sender = document.createElement("span");
+    sender.setAttribute("class", "chatbox_sender");
+    sender.innerText = packet.sender;
+
+    const time = document.createElement("span");
+    time.setAttribute("class", "chatbox_time");
+    time.innerText = packet.time;
+
+    info.appendChild(sender);
+    info.appendChild(time);
+
+    const msg = document.createElement("div");
+    msg.setAttribute("class", "chatbox_msg");
+    msg.innerHTML = packet.msg;
+
+    msgbox.appendChild(info);
+    msgbox.appendChild(msg);
+
+    document.getElementsByClassName("chatlistbox")[0].appendChild(msgbox);
+    if(document.getElementsByClassName("chatlistbox")[0].scrollTop >= document.getElementsByClassName("chatlistbox")[0].scrollHeight - document.getElementsByClassName("chatlistbox")[0].offsetHeight - 10) {
+        document.getElementsByClassName("chatlistbox")[0].scrollTop = document.getElementsByClassName("chatlistbox")[0].scrollHeight;
+    }
+});
+
 
 const audioStatusChange = (streamId, socketId) => {
     let check = false;
@@ -122,7 +162,7 @@ const audioStatusChange = (streamId, socketId) => {
         else
             worker[socketId+"_"+streamId+"_audio"].count++;
         if(worker[socketId+"_"+streamId+"_audio"].count > 5) delete worker[socketId+"_"+streamId+"_audio"];
-    }
+    }else if(worker[socketId+"_"+streamId+"_audio"]) delete worker[socketId+"_"+streamId+"_audio"];
 }
 
 const desktopStatusChange = (streamId, socketId) => {
@@ -147,7 +187,7 @@ const desktopStatusChange = (streamId, socketId) => {
         else
             worker[socketId+"_"+streamId+"_desktop"].count++;
         if(worker[socketId+"_"+streamId+"_desktop"].count > 5) delete worker[socketId+"_"+streamId+"_desktop"];
-    }
+    }else if(worker[socketId+"_"+streamId+"_desktop"]) delete worker[socketId+"_"+streamId+"_desktop"];
 }
 
 const videoStatusChange = (streamId, socketId) => {
@@ -168,7 +208,7 @@ const videoStatusChange = (streamId, socketId) => {
         else
             worker[socketId+"_"+streamId+"_video"].count++;
         if(worker[socketId+"_"+streamId+"_video"].count > 5) delete worker[socketId+"_"+streamId+"_video"];
-    }
+    }else if(worker[socketId+"_"+streamId+"_video"]) delete worker[socketId+"_"+streamId+"_video"];
 }
 
 const sendPeerData = (message, uid) => {

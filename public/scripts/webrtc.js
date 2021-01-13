@@ -3,9 +3,9 @@ const worker = [];
 
 const configure = {
     iceServers: [{
-        urls: `stun:${socket.io.uri.replace("https://", '').replace("http://", '')}:7347`
+        urls: `stun:live.edcan.kr:5349`
     }, {
-        urls: `turn:${socket.io.uri.replace("https://", '').replace("http://", '')}:7347`,
+        urls: `turn:live.edcan.kr:5349`,
         credential: 'turnserver',
         username: 'turnserver'
     }]

@@ -3,11 +3,12 @@ module.exports = (io) => {
         log("::Socket Connection:: " + client.handshake.address);
 
         socketEmitNotPlayer("PlayerConnection", client.id, client.id);
+        client.emit("JoinRoom", client.id);
 
         client.on("disconnect", () => {
             log("::Socket Disconnect:: " + client.handshake.address);
             io.sockets.emit("PlayerDisconnection", client.id);
-        })
+        });
         
 
         client.on("RTCConnection", () => {
@@ -27,7 +28,8 @@ module.exports = (io) => {
         client.on("RTCData", (data, to) => {
             if(to) {
                 const x = io.sockets.connected[to];
-                x.emit("RTCData", data, client.id);
+				if(x)
+					x.emit("RTCData", data, client.id);
             }
         });
     
@@ -60,6 +62,15 @@ module.exports = (io) => {
             }else
                 io.sockets.emit("desktopStatus", { uid: client.id, status: data.status, streamId: data.streamId });
         });
+
+        client.on("chat", msg => {
+            if(msg.replace(/ /, "").replace(/\n/, "").length == 0) return;
+            msg = splitTags(msg);
+            msg = msg.replace(/\n/gi, "<br>");
+            const day = new Date();
+            const packet = { "sender": client.id, "msg": msg, "time": `${day.getHours()}H ${day.getMinutes()}M` };
+            io.sockets.emit("chat", JSON.stringify(packet));
+        });
     });
 
 
@@ -79,3 +90,31 @@ const log = msg => {
 	const logD = "[" + logDate.getFullYear().toString().substring(2) + "/" + (logDate.getMonth() + 1).toString().padStart(2,'0') + " " + logDate.getHours().toString().padStart(2,'0') + ":" + logDate.getMinutes().toString().padStart(2,'0') + ":" + logDate.getSeconds().toString().padStart(2,'0') + "]";
 	console.log(logD + " " + msg);
 }
+
+const splitTags = (data) => {
+    return data.replace(/&/gi, "&#38;")
+        .replace(/#/gi, "&#35;")
+        .replace(/&&#35;38;/gi, "&#38;")
+        .replace(/</gi, "&lt;")
+        .replace(/>/gi, "&gt;")
+        .replace(/\(/gi, "&#40;")
+        .replace(/\)/gi, "&#41;")
+        .replace(/ /gi, "&nbsp;")
+        .replace(/=/gi, "&#61;")
+        .replace(/'/gi, "&#39;")
+        .replace(/"/gi, "&quot;");
+};
+
+
+const splitTagsReverse = (data) => {
+    return data.replace("&#38;", "&")
+        .replace(/&#35;/gi, "#")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&#40;/gi, "(")
+        .replace(/&#41;/gi, ")")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&#61;/gi, "=")
+        .replace(/&#39;/gi, "'")
+        .replace(/&#34;/gi, '"');
+};

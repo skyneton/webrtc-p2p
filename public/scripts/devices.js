@@ -22,7 +22,7 @@ const closeState = () => {
     callState.audio = false;
     callState.desktop = false;
 
-    closePeerConnection();
+    closePeerConnectionAll();
 
     for(const key in devices) {
         devices[key].getTracks().forEach(track => track.stop());

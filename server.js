@@ -1,14 +1,4 @@
 const express = require('express');
-const turn = require('node-turn');
-
-new turn({
-    listeningPort: 5349,
-	relayIps: ['10.0.0.3'],
-    authMech: 'long-term',
-    credentials: {
-        'turnserver': 'turnserver'
-    }
-}).start();
 
 const app = express();
 
@@ -27,8 +17,8 @@ const port = 80;
 
 const http = require('http');
 const server = http.createServer(app).listen(port, () => {
-    log("::Server Open:: PORT: " + port)
-}); //나중에 SSL 적용후 https로 변경할것.
+    log("::Server Open:: PORT: " + port);
+});
 
 const io = require("socket.io").listen(server);
 

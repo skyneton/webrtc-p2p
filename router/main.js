@@ -1,7 +1,7 @@
 module.exports = (app) => {
-    app.get('/', (req, res) => {
-        res.render('index', {
-            title: "미정"
+    app.get('/live', (req, res) => {
+        res.render('live', {
+            title: "IE 7"
         });
     });
 }
