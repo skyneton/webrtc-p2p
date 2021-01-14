@@ -98,7 +98,7 @@ module.exports = (io) => {
         client.on("chat", msg => {
             if(msg.replace(/ /, "").replace(/\n/, "").length == 0) return;
             msg = splitTags(msg);
-            msg = msg.replace(/\n/gi, "<br>");
+            msg = msg.trim().replace(/\n/gi, "<br>").replace(/　/gi, "");
             const day = new Date();
             const packet = { "sender": client.id, "msg": msg, "time": `${day.getHours()}H ${day.getMinutes()}M` };
             io.sockets.emit("chat", JSON.stringify(packet));

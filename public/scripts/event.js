@@ -72,10 +72,10 @@ document.getElementsByClassName("chat_input")[0].onkeydown = () => {
 
 document.getElementsByClassName("chat_send")[0].onclick = () => {
     const chat = document.getElementsByClassName("chat_input")[0].value;
-    if(chat.replace(/ /gi, "").replace(/\n/gi, "").length == 0) return;
+    if(chat.trim().replace(/ /gi, "").replace(/\n/gi, "").replace(/　/gi, "").length == 0) return;
     document.getElementsByClassName("chat_input")[0].value = null;
 
-    socket.emit("chat", chat);
+    socket.emit("chat", chat.trim());
 }
 
 document.getElementsByClassName("user_camera_toggle")[0].onclick = () => {
