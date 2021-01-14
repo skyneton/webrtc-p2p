@@ -31,6 +31,8 @@ socket.on("JoinRoom", uid => {
 
 socket.on("serverError", id => {
     closeState();
+    document.body.style.display = "none";
+    beforeunload = true;
     switch(id) {
         case 1:
             alert("다른 브라우저에서 접속중입니다."); break;
