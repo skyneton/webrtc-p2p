@@ -277,8 +277,10 @@ const userBoxCreate = (uid, name) => {
 const userBoxDelete = uid => {
 	const container_box = document.getElementsByClassName(`containerbox_${uid}`);
 	const topbar_box = document.getElementsByClassName(`selectbox_${uid}`);
+	const user_box = document.getElementsByClassName(`userlistbox_${uid}`);
 	for(let i = 0; i < container_box.length; i++) container_box[i].remove();
 	for(let i = 0; i < topbar_box.length; i++) topbar_box[i].remove();
+	for(let i = 0; i < user_box.length; i++) user_box[i].remove();
 }
 
 const selectModeChange = video => {
