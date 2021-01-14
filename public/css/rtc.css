@@ -79,6 +79,9 @@ body {
 
 .user_room > main {
 	flex-grow: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	flex-basis: 0;
 }
 
 .chat_room {
@@ -211,7 +214,7 @@ body {
 }
 
 .user_select_box > .select_boxitem[selected] {
-	border: 3px solid aquamarine;
+	border: 5px solid aquamarine;
 }
 
 .user_main_video {
@@ -421,4 +424,58 @@ body {
 	background-color: white;
 }.user_audio_toggle[activity] path {
 	fill: black;
+}
+
+.userbox_nametag {
+	position: absolute;
+	padding: 10px;
+	overflow: hidden;
+	bottom: 0;
+	left: 0;
+	padding: 8px;
+	background-color: rgba(0, 0, 0, 0.85);
+	color: rgba(255, 255, 255, 0.9);
+	border-radius: 10px;
+	margin: 5px;
+	max-width: 70%;
+	max-height: 40%;
+	box-sizing: border-box;
+	transform: scale(0);
+	transition: all 0.4s;
+	z-index: 10;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	word-break: break-all;
+}
+
+.live_room:hover > .container_room .userbox_nametag {
+	transform: scale(1);
+}
+
+.select_room > header:hover .userbox_nametag {
+	transform: scale(1);
+}
+
+.user_main_video .main_nametag {
+	position: absolute;
+	padding: 10px;
+	overflow: hidden;
+	bottom: 0;
+	left: 0;
+	padding: 8px;
+	background-color: rgba(0, 0, 0, 0.85);
+	color: rgba(255, 255, 255, 0.9);
+	border-radius: 10px;
+	margin: 5px;
+	max-width: 70%;
+	max-height: 40%;
+	box-sizing: border-box;
+	transform: scale(0);
+	transition: all 0.4s;
+	z-index: 10;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	word-break: break-all;
+}
+
+.user_main_video:hover .main_nametag {
+	transform: scale(1);
 }

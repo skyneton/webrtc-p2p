@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <link rel="stylesheet" href="./css/rtc.css">
+    <link rel="shortcut icon" href="/images/EDWOP LIVE.png">
+    <link rel="stylesheet" href="/css/rtc.css">
     <script defer src="/socket.io/socket.io.js"></script>
     <script defer src="/scripts/client.js"></script>
     <script defer src="/scripts/devices.js"></script>
@@ -15,7 +16,7 @@
 <body>
 	<section class="live_room">
 		<section class="select_room">
-			<header>
+			<header class="select_top_header">
 				<div class="user_select_box"></div>
 			</header>
 			<main class="user_main_video"></main>
@@ -107,7 +108,9 @@
 				</svg>
 				<span>유저</span>
 			</header>
-			<main></main>
+			<main>
+				<div class="user_room_userlist_box"></div>
+			</main>
 		</section>
 		<section class="chat_room">
 			<header>

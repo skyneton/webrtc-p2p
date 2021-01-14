@@ -194,23 +194,83 @@ const removeInteractAlert = _ => {
 		document.getElementsByClassName("interactAlert")[0].remove();
 };
 
-const userBoxCreate = uid => {
+const userBoxCreate = (uid, name) => {
 	const container_loc = document.getElementsByClassName("container_room")[0].firstElementChild;
 	const topbar_loc = document.getElementsByClassName("user_select_box")[0];
+	const user_loc = document.getElementsByClassName("user_room")[0].getElementsByClassName("user_room_userlist_box")[0];
 
 	if(container_loc.getElementsByClassName(`containerbox_${uid}`).length == 0) {
 		const container_box = document.createElement("div");
 		container_box.setAttribute("class", `containerbox_${uid} container_boxitem`);
 		const container_shape = document.createElement("div");
 		container_shape.setAttribute("class", "container_boxshape");
+
+		const name_tag = document.createElement("div");
+		name_tag.setAttribute("class", "userbox_nametag");
+		name_tag.innerHTML = name;
+
+		container_shape.appendChild(name_tag);
 		container_box.appendChild(container_shape);
-		container_loc.appendChild(container_box);
+
+		let target;
+		for(let i = 0; i < container_loc.children.length; i++) {
+			if(container_loc.children[i].getElementsByClassName("userbox_nametag").length > 0) {
+				let maxlen = container_loc.children[i].getElementsByClassName("userbox_nametag")[0].innerText.length;
+				if(name_tag.innerText.length > maxlen) maxlen = name_tag.innerText.length;
+				if(container_loc.children[i].getElementsByClassName("userbox_nametag")[0].innerText.padStart(maxlen, " ") > name_tag.innerText.padStart(maxlen, " ")) {
+					target = container_loc.children[i];
+					break;
+				}
+			}
+		}
+		container_loc.insertBefore(container_box, target);
 	}
 
 	if(topbar_loc.getElementsByClassName(`selectbox_${uid}`).length == 0) {
 		const topbar_box = document.createElement("div");
 		topbar_box.setAttribute("class", `selectbox_${uid} select_boxitem`);
-		topbar_loc.appendChild(topbar_box);
+
+		const name_tag = document.createElement("span");
+		name_tag.setAttribute("class", "userbox_nametag");
+		name_tag.innerHTML = name;
+		topbar_box.appendChild(name_tag);
+		
+		let target;
+		for(let i = 0; i < topbar_loc.children.length; i++) {
+			if(topbar_loc.children[i].getElementsByClassName("userbox_nametag").length > 0) {
+				let maxlen = topbar_loc.children[i].getElementsByClassName("userbox_nametag")[0].innerText.length;
+				if(name_tag.innerText.length > maxlen) maxlen = name_tag.innerText.length;
+				if(topbar_loc.children[i].getElementsByClassName("userbox_nametag")[0].innerText.padStart(maxlen, " ") > name_tag.innerText.padStart(maxlen < " ")) {
+					target = topbar_loc.children[i];
+					break;
+				}
+			}
+		}
+		topbar_loc.insertBefore(topbar_box, target);
+	}
+
+	if(user_loc.getElementsByClassName(`userlistbox_${uid}`).length == 0) {
+		const user_box = document.createElement("div");
+		user_box.setAttribute("class", `userlistbox_${uid} userlistItem`);
+
+		const name_tag = document.createElement("span");
+		name_tag.setAttribute("class", "userlistItem_nametag");
+		name_tag.innerHTML = name;
+
+		user_box.appendChild(name_tag);
+		
+		let target;
+		for(let i = 0; i < user_loc.children.length; i++) {
+			if(user_loc.children[i].getElementsByClassName("userlistItem_nametag").length > 0) {
+				let maxlen = user_loc.children[i].getElementsByClassName("userlistItem_nametag")[0].innerText.length;
+				if(name_tag.innerText.length > maxlen) maxlen = name_tag.innerText.length;
+				if(user_loc.children[i].getElementsByClassName("userlistItem_nametag")[0].innerText.padStart(maxlen, " ") > name_tag.innerText.padStart(maxlen, " ")) {
+					target = user_loc.children[i];
+					break;
+				}
+			}
+		}
+		user_loc.insertBefore(user_box, target);
 	}
 };
 
@@ -227,6 +287,10 @@ const selectModeChange = video => {
 		const box = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${selectSid.get()}`)[0];
 		for(let obj = 0; obj < main.children.length; obj++) {
 			const objects = main.children[obj];
+			if(objects.className == "main_nametag") {
+				objects.remove();
+				continue;
+			}
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
 				objects.pause();
@@ -265,7 +329,7 @@ const selectModeChange = video => {
 			}
 			if(!className) continue;
 			const userSelectBox = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${className}`);
-			if(userSelectBox.length == 0) userBoxCreate(className);
+			if(userSelectBox.length == 0) userBoxCreate(className, className);
 			if(userSelectBox.length == 0) continue;
 
 			const box = container.children[i].getElementsByClassName("container_boxshape")[0].children;
@@ -278,6 +342,15 @@ const selectModeChange = video => {
 	}
 
 	document.getElementsByClassName(`selectbox_${selectSid.get()}`)[0].setAttribute("selected", true);
+
+	if(document.getElementsByClassName(`selectbox_${selectSid.get()}`)[0].getElementsByClassName("userbox_nametag").length > 0) {
+		const nametag = document.createElement("span");
+		nametag.setAttribute("class", "main_nametag");
+		nametag.innerHTML = document.getElementsByClassName(`selectbox_${selectSid.get()}`)[0].getElementsByClassName("userbox_nametag")[0].innerHTML;
+		main.appendChild(nametag);
+
+		if(!!document.fullscreenElement && document.fullscreenElement == document.getElementsByClassName("live_room")[0]) nametag.style.display = "none";
+	}
 
 	main.appendChild(video);
 }
@@ -316,6 +389,10 @@ const defaultModeChange = () => {
 		const box = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${selectSid.get()}`)[0];
 		for(let obj = 0; obj < main.children.length; obj++) {
 			const objects = main.children[obj];
+			if(objects.className == "main_nametag") {
+				objects.remove();
+				continue;
+			}
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
 				objects.pause();
@@ -336,7 +413,10 @@ const defaultModeChange = () => {
 		if(contain.length == 0) continue;
 		const items = userboxs[i].children;
 		for(let item = 0; item < items.length; item++) {
-			contain[0].appendChild(items[i]);
+			if(items[item].className.endsWith("_nametag") || items[item].tagName.toUpperCase() == "SPAN") {
+				continue;
+			}
+			contain[0].appendChild(items[item]);
 		}
 	}
 

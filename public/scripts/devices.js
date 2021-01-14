@@ -79,13 +79,16 @@ const turnAudioState = (state = false) => {
 
                 if(devices["Audio"].getAudioTracks().length > 0) {
                     devices["Audio"].getAudioTracks().onended = () => {
+                        if(document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].removeAttribute("activity");
                         turnAudioState(false);
                     }
                 }
 
+                if(!document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].setAttribute("activity", true);
                 resolve(true);
 
             }).catch(function(err) {
+                if(document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].removeAttribute("activity");
                 resolve(false);
             });
         }else {
@@ -97,6 +100,7 @@ const turnAudioState = (state = false) => {
             });
 
             delete devices["Audio"];
+            if(document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].removeAttribute("activity");
             resolve(false);
         }
     });
@@ -135,10 +139,13 @@ const turnDesktopState = (state = false) => {
                     userDesktopVideoCreate(new MediaStream(devices["DesktopShare"].getVideoTracks()), socket.id);
                 
                     devices["DesktopShare"].getVideoTracks()[0].onended = () => {
+                        if(document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].removeAttribute("activity");
                         turnDesktopState(false);
                     }
+                    if(!document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].setAttribute("activity", true);
                     resolve(true);
             }).catch(function(err) {
+                if(document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].removeAttribute("activity");
                 resolve(false);
             });
         }else {
@@ -154,6 +161,7 @@ const turnDesktopState = (state = false) => {
                     track.stop();
                 });
                 delete devices["DesktopShare"];
+                if(document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].removeAttribute("activity");
                 resolve(false);
             }
         }
@@ -184,12 +192,15 @@ const turnVideoState = (state = false) => {
 
                 if(devices["Video"].getAudioTracks().length > 0) {
                     devices["Video"].getAudioTracks().onended = () => {
+                        if(document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].removeAttribute("activity");
                         turnVideoState(false);
                     }
                 }
                 userCamVideoCreate(devices["Video"], socket.id);
+                if(!document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].setAttribute("activity", true);
                 resolve(true);
             }).catch(function(err) {
+                if(document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].removeAttribute("activity");
                 resolve(false);
             });
         }else {
@@ -203,6 +214,7 @@ const turnVideoState = (state = false) => {
             delete devices["Video"];
 
             userCamVideoDelete(socket.id);
+            if(document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].removeAttribute("activity");
             resolve(false);
         }
     });

@@ -26,7 +26,7 @@ socket.on("disconnect", () => {
 });
 
 socket.on("JoinRoom", uid => {
-    userBoxCreate(uid);
+    userBoxCreate(uid, uid);
 });
 
 socket.on("serverError", id => {
@@ -44,7 +44,7 @@ socket.on("serverError", id => {
 })
 
 socket.on("PlayerConnection", uid => {
-    userBoxCreate(uid);
+    userBoxCreate(uid, uid);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
@@ -73,7 +73,7 @@ socket.on("PlayerDisconnection", uid => {
 });
 
 socket.on("RTCConnection", uid => {
-    if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid);
+    if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid, uid);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
@@ -81,7 +81,7 @@ socket.on("RTCConnection", uid => {
 
 socket.on("RTCData", (message, to)=>{
     if(message.type === "offer"){
-        userBoxCreate(to);
+        userBoxCreate(to, to);
         if(!peers[to]) peers[to] = createPeerConnection();
         peers[to].setRemoteDescription(new RTCSessionDescription(message));
         doAnswer(peers[to], to);

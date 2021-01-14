@@ -13,16 +13,22 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
     const basic = document.getElementsByClassName("defaultpagemode")[0];
     const sidemenu = document.getElementsByClassName("setting_box_left")[0];
     const centermenu = document.getElementsByClassName("setting_box_center")[0];
+    const main_video = document.getElementsByClassName("user_main_video")[0];
+    const header = document.getElementsByClassName("select_top_header")[0];
     if(!!document.fullscreenElement) {
         basic.style.display = "inline";
         full.style.display = null;
         sidemenu.style.display = "none";
         centermenu.style.display = "block";
+        if(main_video && main_video.getElementsByClassName("main_nametag").length > 0) main_video.getElementsByClassName("main_nametag")[0].style.display = "none";
+        if(header) header.style.display = "none";
     }else {
         basic.style.display = null;
         full.style.display = "inline";
         sidemenu.style.display = null;
         centermenu.style.display = null;
+        if(main_video && main_video.getElementsByClassName("main_nametag").length > 0) main_video.getElementsByClassName("main_nametag")[0].style.display = null;
+        if(header) header.style.display = null;
     }
 }
 
@@ -74,26 +80,17 @@ document.getElementsByClassName("chat_send")[0].onclick = () => {
 
 document.getElementsByClassName("user_camera_toggle")[0].onclick = () => {
     if(callState.hasVideo)
-        turnVideoState(!callState.video).then(result => {
-            if(!result && document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].removeAttribute("activity");
-            else if(result && !document.getElementsByClassName("user_camera_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_camera_toggle")[0].setAttribute("activity", true);
-        });
+        turnVideoState(!callState.video);
 }
 
 
 document.getElementsByClassName("user_desktop_toggle")[0].disabled = !navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 document.getElementsByClassName("user_desktop_toggle")[0].onclick = () => {
     if(!(!navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)))
-        turnDesktopState(!callState.desktop).then(result => {
-            if(!result && document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].removeAttribute("activity");
-            else if(result && !document.getElementsByClassName("user_desktop_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_desktop_toggle")[0].setAttribute("activity", true);
-        });
+        turnDesktopState(!callState.desktop);
 }
 
 document.getElementsByClassName("user_audio_toggle")[0].onclick = () => {
     if(callState.hasAudio)
-        turnAudioState(!callState.audio).then(result => {
-            if(!result && document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].removeAttribute("activity");
-            else if(result && !document.getElementsByClassName("user_audio_toggle")[0].hasAttribute("activity")) document.getElementsByClassName("user_audio_toggle")[0].setAttribute("activity", true);
-        });
+        turnAudioState(!callState.audio);
 }
