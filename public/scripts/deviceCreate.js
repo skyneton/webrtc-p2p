@@ -271,6 +271,24 @@ const userBoxCreate = (uid, name) => {
 			}
 		}
 		user_loc.insertBefore(user_box, target);
+
+		const searchValue = document.getElementsByClassName("user_name_select")[0].value.toUpperCase();
+		const myname = name_tag.innerText.toUpperCase();
+		if(searchValue.trim().length > 0 && !myname.includes(searchValue)) {
+			let index = 0;
+			for(let search = 0; search < myname.length && index > searchValue.length; search++) {
+				if(searchValue[index] == myname[search] || searchValue[index] == getFirstChar(myname[search]) || searchValue[index] == getMiddleChar(myname[search]) || searchValue[index] == getLastChar(myname[search])) {
+					index++; continue;
+				}
+				if(index == searchValue.length && (getFirstChar(searchValue[index]) == getFirstChar(myname[search]) && (searchValue[index] == getMiddleChar(searchValue[index]) || getMiddleChar(searchValue[index]) == getMiddleChar(myname[search]) && (searchValue[index] == getLastChar(searchValue[index] || getLastChar(searchValue[index]) == getLastChar(myname[search])))))) {
+					index++; continue;
+				}else index = 0;
+			}
+	
+			if(index <= searchValue.length) {
+				user_box.setAttribute("hidden", true);
+			}
+		}
 	}
 };
 
