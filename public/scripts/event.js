@@ -23,6 +23,7 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
     const centermenu = document.getElementsByClassName("setting_box_center")[0];
     const main_video = document.getElementsByClassName("user_main_video")[0];
     const header = document.getElementsByClassName("select_top_header")[0];
+    const createURL = document.getElementsByClassName("createURL")[0];
     if(!!document.fullscreenElement) {
         basic.style.display = "inline";
         full.style.display = null;
@@ -30,6 +31,7 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
         centermenu.style.display = "block";
         if(main_video && main_video.getElementsByClassName("main_nametag").length > 0) main_video.getElementsByClassName("main_nametag")[0].style.display = "none";
         if(header) header.style.display = "none";
+        createURL.style.display = "none";
     }else {
         basic.style.display = null;
         full.style.display = "inline";
@@ -37,6 +39,7 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
         centermenu.style.display = null;
         if(main_video && main_video.getElementsByClassName("main_nametag").length > 0) main_video.getElementsByClassName("main_nametag")[0].style.display = null;
         if(header) header.style.display = null;
+        createURL.style.display = null;
     }
 }
 
@@ -158,6 +161,15 @@ document.getElementsByClassName("main_video_lock")[0].onclick = () => {
             else defaultModeChange();
         }
 	}
+}
+
+document.getElementsByClassName("user_call_close")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
+
+    socket.emit("callClose");
 }
 
 document.getElementsByClassName("user_name_select")[0].onkeydown = userSearchAll;

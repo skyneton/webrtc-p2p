@@ -20,8 +20,9 @@ socket.on("connect", () => {
 
 socket.on("disconnect", () => {
     if(!beforeunload) {
-        alert("서버 연결이 중단되었습니다.");
-        location.reload();
+        alertM("서버 연결이 중단되었습니다.").then(() => {
+            location.reload();
+        });
     }
 });
 
@@ -31,14 +32,21 @@ socket.on("serverError", id => {
     beforeunload = true;
     switch(id) {
         case 1:
-            alert("다른 브라우저에서 접속중입니다."); break;
+            alertM("다른 브라우저에서 접속중입니다."); break;
         case 2:
-            alert("존재하지 않는 키값입니다."); break;
+            alertM("존재하지 않는 키값입니다."); break;
         case 3:
-            alert("로그인을 해주세요"); break;
+            alertM("로그인을 해주세요"); break;
         case 4:
-            alert("계정이 사용중입니다."); break;
+            alertM("계정이 사용중입니다."); break;
     }
+});
+
+socket.on("callClose", () => {
+    beforeunload = true;
+    alertM("통화가 종료되었습니다.").then(() => {
+        window.close();
+    });
 });
 
 socket.on("createToken", token => {

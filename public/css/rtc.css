@@ -307,7 +307,9 @@ body {
 	text-align: right;
 }
 
-.createURL path {
+.createURL {
+	cursor: pointer;
+}.createURL path {
 	fill:#bbbbbb;
 }.createURL:hover path {
 	fill: white;
@@ -316,6 +318,7 @@ body {
 .page_fullscreen_state {
 	display: none;
 	fill:#bbbbbb;
+	cursor: pointer;
 }.page_fullscreen_state:hover path {
 	fill: white;
 }
@@ -324,6 +327,7 @@ body {
 	border: 1px solid #c8c8c8c8;
 	padding: 4px;
 	border-radius: 6px;
+	cursor: pointer;
 }.chat_menu_state:hover {
 	border-color: orange;
 }
@@ -360,6 +364,7 @@ body {
 	padding: 4px 6px;
 	font-weight: bold;
 	border-radius: 5px;
+	cursor: pointer;
 }.chat_send:hover {
 	background-color: purple;
 }.chat_send:active {
@@ -370,6 +375,7 @@ body {
 	border: 1px solid #c8c8c8c8;
 	padding: 4px;
 	border-radius: 6px;
+	cursor: pointer;
 }.user_menu_state path {
 	fill: #c8c8c8c8;
 }.user_menu_state:hover {
@@ -432,11 +438,9 @@ body {
 	padding: 8px;
 	background-color: rgb(66, 66, 66);
 	display: inline-block;
+	cursor: pointer;
 }.user_camera_toggle:hover {
 	background-color: rgb(45, 45, 45);
-}.user_camera_toggle svg {
-	width: 22px;
-	height: 22px;
 }.user_camera_toggle path {
 	fill: white;
 }.user_camera_toggle[activity] {
@@ -450,12 +454,9 @@ body {
 	padding: 8px;
 	background-color: rgb(66, 66, 66);
 	display: inline-block;
-	margin: 0 15px;
+	cursor: pointer;
 }.user_desktop_toggle:hover {
 	background-color: rgb(45, 45, 45);
-}.user_desktop_toggle svg {
-	width: 22px;
-	height: 22px;
 }.user_desktop_toggle path {
 	fill: white;
 }.user_desktop_toggle[activity] {
@@ -469,17 +470,25 @@ body {
 	padding: 8px;
 	background-color: rgb(66, 66, 66);
 	display: inline-block;
+	cursor: pointer;
 }.user_audio_toggle:hover {
 	background-color: rgb(45, 45, 45);
-}.user_audio_toggle svg {
-	width: 22px;
-	height: 22px;
 }.user_audio_toggle path {
 	fill: white;
 }.user_audio_toggle[activity] {
 	background-color: white;
 }.user_audio_toggle[activity] path {
 	fill: black;
+}
+
+.user_call_close {
+	border-radius: 100%;
+	padding: 8px;
+	background-color: red;
+	display: inline-block;
+	cursor: pointer;
+}.user_call_close path {
+	fill: white;
 }
 
 .userbox_nametag {

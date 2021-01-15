@@ -16,6 +16,22 @@ module.exports = (io) => {
                 delete session.data[client.key];
             }
         });
+
+        client.on("callClose", () => {
+            if(client.room && io.sockets.adapter.rooms[client.room] && client.room == client.key) {
+                for(const sockets in io.sockets.adapter.rooms[client.room].sockets) {
+                    if(sockets != uid) {
+                        const player = io.sockets.connected[sockets];
+                        if(player) {
+                            player.emit("callClose");
+                            player.disconnect();
+                        }
+                    }
+                }
+            }
+            client.emit("callClose");
+            client.disconnect();
+        });
         
         client.on("session", key => {
             if(session.used.includes(key)) {
