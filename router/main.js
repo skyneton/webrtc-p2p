@@ -17,7 +17,7 @@ module.exports = (app) => {
                 key: req.session.id
             });
         }else {
-            req.redirect("/live");
+            res.redirect("/live");
         }
     });
 }
