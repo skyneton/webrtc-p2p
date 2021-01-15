@@ -126,6 +126,10 @@ document.getElementsByClassName("user_desktop_toggle")[0].onclick = () => {
 }
 
 document.getElementsByClassName("createURL")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     socket.emit("createToken");
 }
 
