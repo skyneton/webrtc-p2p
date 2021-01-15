@@ -29,6 +29,8 @@ module.exports = (io) => {
                     }
                 }
             }
+            if(session.data[client.token].allow.includes(client.key))
+                session.data[client.token].allow.splice(session.data[client.token].allow.indexOf(client.key), 1);
             client.emit("callClose");
             client.disconnect();
         });
@@ -66,6 +68,7 @@ module.exports = (io) => {
             if(session.data[client.key].room) {
                 if(io.sockets.adapter.rooms[session.data[client.key].room]) {
                     client.room = session.data[client.key].room;
+                    client.token = session.data[client.key].room;
                 }else
                     client.emit("serverMsg", {"type": 1, "message": "삭제되었거나 존재하지 않는 방입니다." });
             }

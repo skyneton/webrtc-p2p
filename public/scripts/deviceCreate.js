@@ -214,9 +214,9 @@ const userBoxCreate = (uid, name) => {
 			document.getElementsByClassName("main_video_lock")[0].style.display = null;
 			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
 			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
-			else item.play.catch(error => {
+			else item.play().catch(error => {
 				playError(item);
-			})
+			});
 			selectModeChange(uid, item);
 		}
 
@@ -225,7 +225,7 @@ const userBoxCreate = (uid, name) => {
 			document.getElementsByClassName("main_video_lock")[0].style.display = "block";
 			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
 			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
-			else item.play.catch(error => {
+			else item.play().catch(error => {
 				playError(item);
 			})
 			selectModeChange(uid, item);
