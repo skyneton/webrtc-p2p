@@ -157,8 +157,12 @@ document.getElementsByClassName("main_video_lock")[0].onclick = () => {
 	if(selectSid) {
         if(document.getElementsByClassName(`desktopvideo_${selectSid.get()}`).length == 0) {
             const vid = getHasDesktopVideoId();
-            if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
-            else defaultModeChange();
+            if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) {
+                document.getElementsByClassName(`desktopvideo_${vid}`)[0].play().catch(error => {
+                    playError(document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+                });
+                selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+            }else defaultModeChange();
         }
 	}
 }

@@ -21,23 +21,7 @@ const userCamVideoCreate = (stream, uid) => {
 
 	e.onloadedmetadata = () => {
 		e.play().catch(error => {
-			window.addEventListener('click', play);
-			window.addEventListener('contextmenu', play);
-			window.addEventListener('focus', play);
-			window.addEventListener('touchmove', play);
-			
-			createInteractAlert();
-			
-			function play() {
-				e.play().then(_ => {
-					window.removeEventListener('click', play);
-					window.removeEventListener('contextmenu', play);
-					window.removeEventListener('focus', play);
-					window.removeEventListener('touchmove', play);
-					
-					removeInteractAlert();
-				});
-			}
+			playError(e);
 		});
 	};
 };
@@ -62,23 +46,7 @@ const userAudioCreate = (stream, uid) => {
 	document.getElementsByClassName("container_room")[0].getElementsByClassName(`containerbox_${uid}`)[0].getElementsByClassName("container_boxshape")[0].appendChild(e);
 	e.onloadedmetadata = () => {
 		e.play().catch(error => {
-			window.addEventListener('click', play);
-			window.addEventListener('contextmenu', play);
-			window.addEventListener('focus', play);
-			window.addEventListener('touchmove', play);
-			
-			createInteractAlert();
-			
-			function play() {
-				e.play().then(_ => {
-					window.removeEventListener('click', play);
-					window.removeEventListener('contextmenu', play);
-					window.removeEventListener('focus', play);
-					window.removeEventListener('touchmove', play);
-					
-					removeInteractAlert();
-				});
-			}
+			playError(e);
 		});
 	};
 };
@@ -112,23 +80,7 @@ const userDesktopVideoCreate = (stream, uid) => {
 
 	e.onloadedmetadata = () => {
 		e.play().catch(error => {
-			window.addEventListener('click', play);
-			window.addEventListener('contextmenu', play);
-			window.addEventListener('focus', play);
-			window.addEventListener('touchmove', play);
-			
-			createInteractAlert();
-			
-			function play() {
-				e.play().then(_ => {
-					window.removeEventListener('click', play);
-					window.removeEventListener('contextmenu', play);
-					window.removeEventListener('focus', play);
-					window.removeEventListener('touchmove', play);
-					
-					removeInteractAlert();
-				});
-			}
+			playError(e);
 		});
 	};
 };
@@ -145,8 +97,12 @@ const userDesktopVideoDelete = uid => {
 			selectModeChange(uid, document.getElementsByClassName(`camera_${uid}`));
 		}else {
 			const vid = getHasDesktopVideoId();
-			if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
-			else defaultModeChange();
+			if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) {
+				document.getElementsByClassName(`desktopvideo_${vid}`)[0].play().catch(error => {
+					playError(document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+				});
+				selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+			}else defaultModeChange();
 		}
 	}
 };
@@ -163,23 +119,7 @@ const userDesktopAudioCreate = (stream, uid) => {
 	document.getElementsByClassName("container_room")[0].getElementsByClassName(`containerbox_${uid}`)[0].getElementsByClassName("container_boxshape")[0].appendChild(e);
 	e.onloadedmetadata = () => {
 		e.play().catch(error => {
-			window.addEventListener('click', play);
-			window.addEventListener('contextmenu', play);
-			window.addEventListener('focus', play);
-			window.addEventListener('touchmove', play);
-			
-			createInteractAlert();
-			
-			function play() {
-				e.play().then(_ => {
-					window.removeEventListener('click', play);
-					window.removeEventListener('contextmenu', play);
-					window.removeEventListener('focus', play);
-					window.removeEventListener('touchmove', play);
-					
-					removeInteractAlert();
-				});
-			}
+			playError(e);
 		});
 	};
 };
@@ -240,6 +180,9 @@ const userBoxCreate = (uid, name) => {
 		container_box.onclick = () => {
 			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
 			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			else item.play(error => {
+				playError(item);
+			});
 			selectModeChange(uid, item);
 		}
 	}
@@ -271,6 +214,9 @@ const userBoxCreate = (uid, name) => {
 			document.getElementsByClassName("main_video_lock")[0].style.display = null;
 			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
 			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			else item.play.catch(error => {
+				playError(item);
+			})
 			selectModeChange(uid, item);
 		}
 
@@ -279,6 +225,9 @@ const userBoxCreate = (uid, name) => {
 			document.getElementsByClassName("main_video_lock")[0].style.display = "block";
 			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
 			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			else item.play.catch(error => {
+				playError(item);
+			})
 			selectModeChange(uid, item);
 		}
 	}
@@ -346,8 +295,12 @@ const userBoxDelete = uid => {
 			videoLock = false;
 			document.getElementsByClassName("main_video_lock")[0].style.display = null;
 		}
-		if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
-		else
+		if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) {
+			document.getElementsByClassName(`desktopvideo_${vid}`)[0].play().catch(error => {
+				playError(document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+			});
+			selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+		}else
 			defaultModeChange();
 	}
 }
@@ -369,9 +322,9 @@ const selectModeChange = (uid, video) => {
 		}
 	}
 
-	const userBoxs = document.getElementsByClassName("user_select_box")[0].getElementsByClassName("select_boxitem")[0];
-	for(let i = 0; i < userBoxs.children.length; i++) {
-		if(userBoxs.children[i].hasAttribute("selected")) userBoxs.children[i].removeAttribute("selected");
+	const userBoxs = document.getElementsByClassName("user_select_box")[0].getElementsByClassName("select_boxitem");
+	for(let i = 0; i < userBoxs.length; i++) {
+		if(userBoxs[i].hasAttribute("selected")) userBoxs[i].removeAttribute("selected");
 	}
 
 	// const classes = video.className.split(" ");
@@ -497,4 +450,24 @@ const defaultModeChange = () => {
 
 	document.getElementsByClassName("select_room")[0].style.display = null;
 	document.getElementsByClassName("container_room")[0].style.display = null;
+}
+
+const playError = e => {
+	window.addEventListener('click', play);
+	window.addEventListener('contextmenu', play);
+	window.addEventListener('focus', play);
+	window.addEventListener('touchmove', play);
+	
+	createInteractAlert();
+	
+	function play() {
+		e.play().then(_ => {
+			window.removeEventListener('click', play);
+			window.removeEventListener('contextmenu', play);
+			window.removeEventListener('focus', play);
+			window.removeEventListener('touchmove', play);
+			
+			removeInteractAlert();
+		});
+	}
 }

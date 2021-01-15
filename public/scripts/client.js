@@ -49,6 +49,7 @@ socket.on("callClose", () => {
     document.getElementsByClassName("live_room")[0].style.display = "none";
     document.getElementsByClassName("right_side")[0].style.display = "none";
     alertM("통화가 종료되었습니다.").then(() => {
+        window.close();
         history.back();
     });
 });
