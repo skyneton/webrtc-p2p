@@ -549,7 +549,6 @@ body {
 .main_video_lock {
 	position: absolute;
 	top: 0;
-	left: 0;
 	max-width: 70%;
 	max-height: 40%;
 	overflow: hidden;
@@ -561,4 +560,5 @@ body {
 	box-sizing: border-box;
 	z-index: 10;
 	display: none;
+	margin: 7px;
 }

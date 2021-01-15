@@ -467,6 +467,7 @@ const defaultModeChange = () => {
 				objects.remove();
 				continue;
 			}
+			console.log(objects.className);
 			if(objects.className == "main_video_lock") continue;
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
