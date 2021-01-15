@@ -362,6 +362,7 @@ const selectModeChange = (uid, video) => {
 				objects.remove();
 				continue;
 			}
+			if(objects.className == "main_video_lock") continue;
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
 				objects.pause();
@@ -466,6 +467,7 @@ const defaultModeChange = () => {
 				objects.remove();
 				continue;
 			}
+			if(objects.className == "main_video_lock") continue;
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
 				objects.pause();
