@@ -1,14 +1,15 @@
 const session = require("./session");
+const crypto = require("crypto");
 module.exports = (io) => {
     io.sockets.on("connection", (client) => {
-        log("::Socket Connection:: " + client.handshake.address);
-
-        socketEmitNotPlayer("PlayerConnection", client.id, client.id);
-        client.emit("JoinRoom", client.id);
+        // log("::Socket Connection:: " + client.handshake.address);
 
         client.on("disconnect", () => {
-            log("::Socket Disconnect:: " + client.handshake.address);
-            io.sockets.emit("PlayerDisconnection", client.id);
+            // log("::Socket Disconnect:: " + client.handshake.address);
+            if(client.room) {
+                sendPacketInRoom(client.room, "PlayerDisconnection", client.id);
+                if(io.sockets.adapter.rooms[client.room]) client.leave(client.room);
+            }
 
             if(client.key) {
                 session.used.splice(session.used.indexOf(client.key), 1);
@@ -40,17 +41,46 @@ module.exports = (io) => {
             // }
 
             client.key = key;
+            if(client.room) {
+                sendPacketInRoom(client.room, "PlayerDisconnection", client.id);
+                if(io.sockets.adapter.rooms[client.room]) client.leave(client.room);
+            }
+
+            client.room = undefined;
+            if(session.data[client.key].room) {
+                if(io.sockets.adapter.rooms[session.data[client.key].room]) {
+                    client.room = session.data[client.key].room;
+                }else
+                    client.emit("serverMsg", {"type": 1, "message": "삭제되었거나 존재하지 않는 방입니다." });
+            }
+
+            if(!client.room)
+                client.room = key;
+
+            client.join(client.room);
             session.used.push(key);
+
+            socketEmitNotPlayer(client.room, client.id, "PlayerConnection", client.id, session.data[client.key].name);
+            client.emit("JoinRoom", client.id, session.data[client.key].name);
+        });
+
+        client.on("createToken", () => {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
+            if(client.room == client.key) {
+                session.data[client.key].token = createRandomToken();
+                client.emit("createToken", `${client.key}/${session.data[client.key].token}`);
+            }
         });
 
         client.on("RTCConnection", () => {
-            log("::RTCConnection::" + client.id);
+            // log("::RTCConnection::" + client.id);
 
-            socketEmitNotPlayer("RTCConnection", client.id, client.id);
+            socketEmitNotPlayer(client.room, client.id, "RTCConnection", client.id, session.data[client.key].name);
         });
     
         client.on("RTCConnection2", () => {
-            for(const sockets in io.sockets.connected) {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
+            for(const sockets in io.sockets.adapter.rooms[client.room].sockets) {
                 if(sockets != client.id) {
                     client.emit("RTCConnection", sockets);
                 }
@@ -58,61 +88,73 @@ module.exports = (io) => {
         });
 
         client.on("RTCData", (data, to) => {
-            if(to) {
+            if(to && client.room && io.sockets.adapter.rooms[client.room]) {
                 const x = io.sockets.connected[to];
-				if(x)
-					x.emit("RTCData", data, client.id);
+				if(x && x.room == client.room)
+					x.emit("RTCData", data, client.id, session.data[client.key].name);
             }
         });
     
         client.on("audioStatus", (data, to) => {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(to) {
                 const x = io.sockets.connected[to];
-                if(x) {
+                if(x && x.room == client.room) {
                     x.emit("audioStatus", { uid: client.id, status: data.status, streamId: data.streamId });
                 }
             }else
-                io.sockets.emit("audioStatus", { uid: client.id, status: data.status, streamId: data.streamId });
+                io.sockets.in(client.room).emit("audioStatus", { uid: client.id, status: data.status, streamId: data.streamId });
         });
     
         client.on("videoStatus", (data, to) => {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(to) {
                 const x = io.sockets.connected[to];
-                if(x) {
+                if(x && x.room == client.room) {
                     x.emit("videoStatus", { uid: client.id, status: data.status, streamId: data.streamId });
                 }
             }else
-                io.sockets.emit("videoStatus", { uid: client.id, status: data.status, streamId: data.streamId });
+                io.sockets.in(client.room).emit("videoStatus", { uid: client.id, status: data.status, streamId: data.streamId });
         });
     
         client.on("desktopStatus", (data, to) => {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(to) {
                 const x = io.sockets.connected[to];
-                if(x) {
+                if(x && x.room == client.room) {
                     x.emit("desktopStatus", { uid: client.id, status: data.status, streamId: data.streamId });
                 }
             }else
-                io.sockets.emit("desktopStatus", { uid: client.id, status: data.status, streamId: data.streamId });
+                io.sockets.in(client.room).emit("desktopStatus", { uid: client.id, status: data.status, streamId: data.streamId });
         });
 
         client.on("chat", msg => {
+            if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(msg.replace(/ /, "").replace(/\n/, "").length == 0) return;
             msg = splitTags(msg.trim());
             msg = msg.replace(/\n/gi, "<br>").replace(/　/gi, "");
             const day = new Date();
-            const packet = { "sender": client.id, "msg": msg, "time": `${day.getHours()}H ${day.getMinutes()}M` };
-            io.sockets.emit("chat", JSON.stringify(packet));
+            const packet = { "sender": client.id, "msg": msg, "time": `${day.getHours()}H ${day.getMinutes()}M`, "name": session.data[client.key].name };
+            io.sockets.in(client.room).emit("chat", JSON.stringify(packet));
         });
     });
 
 
-    const socketEmitNotPlayer = (type, data, uid) => {
-        for(const sockets in io.sockets.connected) {
+    const socketEmitNotPlayer = (room, uid, type, data, data2) => {
+        if(!room || !io.sockets.adapter.rooms[room]) return;
+        for(const sockets in io.sockets.adapter.rooms[room].sockets) {
             if(sockets != uid) {
                 const player = io.sockets.connected[sockets];
-                player.emit(type, data);
+                if(player)
+                    player.emit(type, data, data2);
             }
         }
+    }
+    
+
+    const sendPacketInRoom = (room, type, data) => {
+        if(!room || !io.sockets.adapter.rooms[room]) return;
+        io.sockets.in(room).emit(type, data);
     }
 }
 
@@ -150,3 +192,7 @@ const splitTagsReverse = (data) => {
         .replace(/&#39;/gi, "'")
         .replace(/&#34;/gi, '"');
 };
+
+const createRandomToken = () => {
+    return crypto.randomBytes(28).toString("hex");
+}

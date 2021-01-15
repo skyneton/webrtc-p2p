@@ -1,9 +1,17 @@
 document.getElementsByClassName("fullpagemode")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const live = document.getElementsByClassName("live_room")[0];
     live.requestFullscreen() || live.webkitRequestFullscreen() || live.mozRequestFullScreen() || live.msRequestFullscreen();
 }
 
 document.getElementsByClassName("defaultpagemode")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const live = document.getElementsByClassName("live_room")[0];
     document.exitFullscreen();
 }
@@ -33,6 +41,10 @@ document.getElementsByClassName("live_room")[0].onfullscreenchange = () => {
 }
 
 document.getElementsByClassName("chat_menu_state")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const chat = document.getElementsByClassName("chat_room")[0];
     const user = document.getElementsByClassName("user_room")[0];
     const side = document.getElementsByClassName("right_side")[0];
@@ -49,6 +61,10 @@ document.getElementsByClassName("chat_menu_state")[0].onclick = () => {
 }
 
 document.getElementsByClassName("user_menu_state")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const chat = document.getElementsByClassName("chat_room")[0];
     const user = document.getElementsByClassName("user_room")[0];
     const side = document.getElementsByClassName("right_side")[0];
@@ -64,6 +80,10 @@ document.getElementsByClassName("user_menu_state")[0].onclick = () => {
 }
 
 document.getElementsByClassName("chat_input")[0].onkeydown = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     if(event.keyCode == 13 && !event.shiftKey) {
         event.preventDefault();
         document.getElementsByClassName("chat_send")[0].click();
@@ -71,6 +91,10 @@ document.getElementsByClassName("chat_input")[0].onkeydown = () => {
 }
 
 document.getElementsByClassName("chat_send")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const chat = document.getElementsByClassName("chat_input")[0].value;
     if(chat.trim().replace(/ /gi, "").replace(/\n/gi, "").replace(/　/gi, "").length == 0) return;
     document.getElementsByClassName("chat_input")[0].value = null;
@@ -79,18 +103,37 @@ document.getElementsByClassName("chat_send")[0].onclick = () => {
 }
 
 document.getElementsByClassName("user_camera_toggle")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     if(callState.hasVideo)
         turnVideoState(!callState.video);
 }
 
 
 document.getElementsByClassName("user_desktop_toggle")[0].disabled = !navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+if(!navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+    document.getElementsByClassName("user_desktop_toggle")[0].style.display = "none";
+
 document.getElementsByClassName("user_desktop_toggle")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     if(!(!navigator.mediaDevices.getDisplayMedia || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)))
         turnDesktopState(!callState.desktop);
 }
 
+document.getElementsByClassName("createURL")[0].onclick = () => {
+    socket.emit("createToken");
+}
+
 document.getElementsByClassName("user_audio_toggle")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     if(callState.hasAudio)
         turnAudioState(!callState.audio);
 }
@@ -100,6 +143,10 @@ document.getElementsByClassName("user_name_select")[0].onkeyup = userSearchAll;
 
 
 function userSearchAll() {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
     const userlist = document.getElementsByClassName("user_room_userlist_box")[0].children;
     for(let i = 0; i < userlist.length; i++) {
         if(userlist[i].hasAttribute("hidden")) userlist[i].removeAttribute("hidden");

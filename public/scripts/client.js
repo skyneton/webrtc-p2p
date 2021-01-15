@@ -25,10 +25,6 @@ socket.on("disconnect", () => {
     }
 });
 
-socket.on("JoinRoom", uid => {
-    userBoxCreate(uid, uid);
-});
-
 socket.on("serverError", id => {
     closeState();
     document.body.style.display = "none";
@@ -43,10 +39,34 @@ socket.on("serverError", id => {
         case 4:
             alert("계정이 사용중입니다."); break;
     }
-})
+});
 
-socket.on("PlayerConnection", uid => {
-    userBoxCreate(uid, uid);
+socket.on("createToken", token => {
+    const clip = document.createElement("textarea");
+    clip.value = `${window.location.protocol}//${window.location.hostname}/live/${token}`;
+    document.body.appendChild(clip);
+    clip.select();
+    clip.setSelectionRange(0, 9999);
+
+    document.execCommand("copy");
+    document.body.removeChild(clip);
+    promptM("복사되었습니다.", `${window.location.protocol}//${window.location.hostname}/live/${token}`);
+});
+
+socket.on("serverMsg", packet => {
+    switch(packet.id) {
+        case 1:
+            alertM(packet.message);
+            break;
+    }
+});
+
+socket.on("JoinRoom", (uid, name) => {
+    userBoxCreate(uid, name);
+});
+
+socket.on("PlayerConnection", (uid, name) => {
+    userBoxCreate(uid, name);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
@@ -74,16 +94,16 @@ socket.on("PlayerDisconnection", uid => {
     }
 });
 
-socket.on("RTCConnection", uid => {
-    if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid, uid);
+socket.on("RTCConnection", (uid, name) => {
+    if(!document.getElementsByClassName("container_room")[0].firstElementChild.getElementsByClassName(`containerbox_${uid}`)) userBoxCreate(uid, name);
     if(!peers[uid]) peers[uid] = createPeerConnection();
     peers[uid].socketId = uid;
     doCall(peers[uid], uid);
 });
 
-socket.on("RTCData", (message, to)=>{
+socket.on("RTCData", (message, to, name)=>{
     if(message.type === "offer"){
-        userBoxCreate(to, to);
+        userBoxCreate(to, name);
         if(!peers[to]) peers[to] = createPeerConnection();
         peers[to].setRemoteDescription(new RTCSessionDescription(message));
         doAnswer(peers[to], to);
@@ -162,7 +182,7 @@ socket.on("chat", packet => {
 
     const sender = document.createElement("span");
     sender.setAttribute("class", "chatbox_sender");
-    sender.innerText = packet.sender;
+    sender.innerText = packet.name;
 
     const time = document.createElement("span");
     time.setAttribute("class", "chatbox_time");
