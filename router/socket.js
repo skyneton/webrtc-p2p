@@ -20,7 +20,7 @@ module.exports = (io) => {
         client.on("callClose", () => {
             if(client.room && io.sockets.adapter.rooms[client.room] && client.room == client.key) {
                 for(const sockets in io.sockets.adapter.rooms[client.room].sockets) {
-                    if(sockets != uid) {
+                    if(sockets != client.id) {
                         const player = io.sockets.connected[sockets];
                         if(player) {
                             player.emit("callClose");

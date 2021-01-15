@@ -28,7 +28,8 @@ socket.on("disconnect", () => {
 
 socket.on("serverError", id => {
     closeState();
-    document.body.style.display = "none";
+    document.getElementsByClassName("live_room")[0].style.display = "none";
+    document.getElementsByClassName("right_side")[0].style.display = "none";
     beforeunload = true;
     switch(id) {
         case 1:
@@ -43,9 +44,12 @@ socket.on("serverError", id => {
 });
 
 socket.on("callClose", () => {
+    closeState();
     beforeunload = true;
+    document.getElementsByClassName("live_room")[0].style.display = "none";
+    document.getElementsByClassName("right_side")[0].style.display = "none";
     alertM("통화가 종료되었습니다.").then(() => {
-        window.close();
+        history.back();
     });
 });
 

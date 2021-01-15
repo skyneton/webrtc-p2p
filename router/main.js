@@ -2,9 +2,7 @@ const session = require("./session");
 
 module.exports = (app) => {
     app.get('/live', (req, res) => {
-        session.data[req.session.id] = { "name": req.session.name, "uid": req.session.uid };
-        if(!req.session.time) req.session.time = new Date().getTime();
-        session.data[req.session.id].time = req.session.time;
+        session.data[req.session.id] = { "name": req.session.name, "uid": req.session.uid, "time": new Date().getTime() };
         if(req.session.room && session.data[req.session.room] && session.data[req.session.room].time < req.session.roomTime) {
             session.data[req.session.id].room = req.session.room;
         }
