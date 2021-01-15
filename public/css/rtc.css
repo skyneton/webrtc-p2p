@@ -545,3 +545,20 @@ body {
 .user_room_userlist_box > .userlistItem[hidden] {
 	display: none;
 }
+
+.main_video_lock {
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 70%;
+	max-height: 40%;
+	overflow: hidden;
+	border-radius: 6px;
+	border: 2px solid rgba(230, 230, 230, 0.7);
+	color: rgba(230, 230, 230, 0.7);
+	background-color: rgba(0, 0, 0, 0.7);
+	padding: 4px;
+	box-sizing: border-box;
+	z-index: 10;
+	display: none;
+}

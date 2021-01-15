@@ -1,4 +1,5 @@
 let selectSid;
+let videoLock = false;
 
 const userCamVideoCreate = (stream, uid) => {
 	const isSelected = !!document.getElementsByClassName("container_room")[0].style.display;
@@ -7,11 +8,15 @@ const userCamVideoCreate = (stream, uid) => {
     if("srcObject" in e)
         e.srcObject = stream;
     else
-        e.src = window.URL.createObjectURL(stream);
+		e.src = window.URL.createObjectURL(stream);
+		
 
-	if(isSelected)
-		document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${uid}`)[0].appendChild(e);
-	else
+	if(isSelected) {
+		if(selectSid && selectSid.get() == uid && document.getElementsByClassName("user_main_video")[0].getElementsByClassName(`desktopvideo_${uid}`).length == 0)
+			selectModeChange(uid, e);
+		else
+			document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${uid}`)[0].appendChild(e);
+	}else
 		document.getElementsByClassName("container_room")[0].getElementsByClassName(`containerbox_${uid}`)[0].getElementsByClassName("container_boxshape")[0].appendChild(e);
 
 	e.onloadedmetadata = () => {
@@ -96,7 +101,10 @@ const userDesktopVideoCreate = (stream, uid) => {
     else
         e.src = window.URL.createObjectURL(stream);
 	
-	selectModeChange(e);
+	if(videoLock)
+		document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${uid}`)[0].appendChild(e);
+	else
+		selectModeChange(uid, e);
 	// if(isSelected)
 	// 	document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${uid}`)[0].appendChild(e);
 	// else
@@ -133,9 +141,13 @@ const userDesktopVideoDelete = uid => {
 	}
 	
 	if(selectSid && uid == selectSid.get() || !document.getElementsByClassName("container_room")[0].style.display) {
-		const vid = getHasDesktopVideoId();
-		if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
-		defaultModeChange();
+		if(videoLock) {
+			selectModeChange(uid, document.getElementsByClassName(`camera_${uid}`));
+		}else {
+			const vid = getHasDesktopVideoId();
+			if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+			else defaultModeChange();
+		}
 	}
 };
 
@@ -224,6 +236,12 @@ const userBoxCreate = (uid, name) => {
 			}
 		}
 		container_loc.insertBefore(container_box, target);
+
+		container_box.onclick = () => {
+			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
+			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			selectModeChange(uid, item);
+		}
 	}
 
 	if(topbar_loc.getElementsByClassName(`selectbox_${uid}`).length == 0) {
@@ -247,6 +265,22 @@ const userBoxCreate = (uid, name) => {
 			}
 		}
 		topbar_loc.insertBefore(topbar_box, target);
+
+		topbar_box.onclick = () => {
+			videoLock = false;
+			document.getElementsByClassName("main_video_lock")[0].style.display = null;
+			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
+			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			selectModeChange(uid, item);
+		}
+
+		topbar_box.ondblclick = () => {
+			videoLock = true;
+			document.getElementsByClassName("main_video_lock")[0].style.display = "block";
+			let item = document.getElementsByClassName(`desktopvideo_${uid}`)[0];
+			if(!item) item = document.getElementsByClassName(`camera_${uid}`)[0];
+			selectModeChange(uid, item);
+		}
 	}
 
 	if(user_loc.getElementsByClassName(`userlistbox_${uid}`).length == 0) {
@@ -299,9 +333,26 @@ const userBoxDelete = uid => {
 	for(let i = 0; i < container_box.length; i++) container_box[i].remove();
 	for(let i = 0; i < topbar_box.length; i++) topbar_box[i].remove();
 	for(let i = 0; i < user_box.length; i++) user_box[i].remove();
+
+	const desktopVideo = document.getElementsByClassName(`desktopvideo_${uid}`);
+	const cameraVideo = document.getElementsByClassName(`camera_${uid}`);
+	for(let i = 0; i < desktopVideo.length; i++) desktopVideo[i].remove();
+	for(let i = 0; i < cameraVideo.length; i++) cameraVideo[i].remove();
+	
+	
+	if(selectSid && uid == selectSid.get() || !document.getElementsByClassName("container_room")[0].style.display) {
+		const vid = getHasDesktopVideoId();
+		if(videoLock) {
+			videoLock = false;
+			document.getElementsByClassName("main_video_lock")[0].style.display = null;
+		}
+		if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+		else
+			defaultModeChange();
+	}
 }
 
-const selectModeChange = video => {
+const selectModeChange = (uid, video) => {
 	const main = document.getElementsByClassName("user_main_video")[0];
 	if(selectSid) {
 		const box = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${selectSid.get()}`)[0];
@@ -322,16 +373,17 @@ const selectModeChange = video => {
 		if(userBoxs.children[i].hasAttribute("selected")) userBoxs.children[i].removeAttribute("selected");
 	}
 
-	const classes = video.className.split(" ");
-	for(let i = 0; i < classes.length; i++) {
-		if(classes[i].startsWith("desktopvideo_")) {
-			selectSid = new readOnly(classes[i].substr(13));
-			break;
-		}else if(classes[i].startsWith("camera_")) {
-			selectSid = new readOnly(classes[i].substr(7));
-			break;
-		}
-	}
+	// const classes = video.className.split(" ");
+	// for(let i = 0; i < classes.length; i++) {
+	// 	if(classes[i].startsWith("desktopvideo_")) {
+	// 		selectSid = new readOnly(classes[i].substr(13));
+	// 		break;
+	// 	}else if(classes[i].startsWith("camera_")) {
+	// 		selectSid = new readOnly(classes[i].substr(7));
+	// 		break;
+	// 	}
+	// }
+	selectSid = new readOnly(uid);
 
 	if(!document.getElementsByClassName("select_room")[0].style.display) {
 		document.getElementsByClassName("select_room")[0].style.display = "flex";
@@ -372,7 +424,8 @@ const selectModeChange = video => {
 		if(!!document.fullscreenElement && document.fullscreenElement == document.getElementsByClassName("live_room")[0]) nametag.style.display = "none";
 	}
 
-	main.appendChild(video);
+	if(video)
+		main.appendChild(video);
 }
 
 const getHasDesktopVideoId = () => {

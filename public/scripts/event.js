@@ -142,6 +142,24 @@ document.getElementsByClassName("user_audio_toggle")[0].onclick = () => {
         turnAudioState(!callState.audio);
 }
 
+document.getElementsByClassName("main_video_lock")[0].onclick = () => {
+    if(hasAlert()) {
+        event.preventDefault();
+        return false;
+    }
+
+    videoLock = false;
+    document.getElementsByClassName("main_video_lock")[0].style.display = null;
+    
+	if(selectSid) {
+        if(document.getElementsByClassName(`desktopvideo_${selectSid.get()}`).length == 0) {
+            const vid = getHasDesktopVideoId();
+            if(vid && document.getElementsByClassName(`desktopvideo_${vid}`).length > 0) selectModeChange(vid, document.getElementsByClassName(`desktopvideo_${vid}`)[0]);
+            else defaultModeChange();
+        }
+	}
+}
+
 document.getElementsByClassName("user_name_select")[0].onkeydown = userSearchAll;
 document.getElementsByClassName("user_name_select")[0].onkeyup = userSearchAll;
 
