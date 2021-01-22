@@ -309,13 +309,16 @@ const selectModeChange = (uid, video) => {
 	const main = document.getElementsByClassName("user_main_video")[0];
 	if(selectSid) {
 		const box = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${selectSid.get()}`)[0];
-		for(let obj = 0; obj < main.children.length; obj++) {
+		for(let obj = 0; obj < main.children.length;) {
 			const objects = main.children[obj];
 			if(objects.className == "main_nametag") {
 				objects.remove();
 				continue;
 			}
-			if(objects.className == "main_video_lock") continue;
+			if(objects.className == "main_video_lock") {
+				obj++;
+				continue;
+			}
 			box.appendChild(objects);
 			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
 				objects.pause();
@@ -359,10 +362,10 @@ const selectModeChange = (uid, video) => {
 			if(userSelectBox.length == 0) continue;
 
 			const box = container.children[i].getElementsByClassName("container_boxshape")[0].children;
-			for(let item = 0; item < box.length; item++) {
+			for(let item = 0; item < box.length;) {
 				if(box[item].tagName.toUpperCase() == "VIDEO" && (box[item].className.startsWith("userDesktopCamera") || box[item].className.includes(" userDesktopCamera") || box[item].className.startsWith("userCamera") || box[item].className.includes(" userCamera"))) {
 					userSelectBox[0].appendChild(box[item]);
-				}
+				}else item++;
 			}
 		}
 	}
@@ -414,17 +417,21 @@ const defaultModeChange = () => {
 	if(selectSid) {
 		const main = document.getElementsByClassName("user_main_video")[0];
 		const box = document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${selectSid.get()}`)[0];
-		for(let obj = 0; obj < main.children.length; obj++) {
-			const objects = main.children[obj];
+		for(let i = 0; i < main.children.length;) {
+			const objects = main.children[i];
 			if(objects.className == "main_nametag") {
 				objects.remove();
 				continue;
 			}
-			if(objects.className == "main_video_lock") continue;
+			if(objects.className == "main_video_lock") {
+				i++;
+				continue;
+			}
 			box.appendChild(objects);
-			if(objects.className.substring(0, 13) == "desktopvideo_" || objects.className.substring(0, 13) == "desktopaudio_")
+			if(objects.className.substring(0, 13) == "desktopvideo_")
 				objects.pause();
 		}
+		selectSid = undefined;
 	}
 
 	const userboxs = document.getElementsByClassName("user_select_box")[0].children;
@@ -440,8 +447,9 @@ const defaultModeChange = () => {
 		const contain = box[0].getElementsByClassName("container_boxshape");
 		if(contain.length == 0) continue;
 		const items = userboxs[i].children;
-		for(let item = 0; item < items.length; item++) {
+		for(let item = 0; item < items.length;) {
 			if(items[item].className.endsWith("_nametag") || items[item].tagName.toUpperCase() == "SPAN") {
+				item++;
 				continue;
 			}
 			contain[0].appendChild(items[item]);

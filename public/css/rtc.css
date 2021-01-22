@@ -57,6 +57,18 @@
 	display: none;
 }
 
+/*
+@media only screen and (orientation: portrait) {
+	html[isMobile] {
+		height: 100vw;
+		transform: rotate(90deg);
+	}
+	
+	html[isMobile] video {
+		transform: rotate(90deg);
+	}
+}*/
+
 body {
 	display: flex;
 	position: fixed;
@@ -208,6 +220,7 @@ body {
 	bottom: 0;
 	width: 100%;
 	height: 100%;
+	transform: scaleX(-1);
 }
 
 .container_boxshape .userDesktopCamera {
@@ -223,6 +236,8 @@ body {
 .select_room > header {
 	flex-shrink: 0;
 	height: 190px;
+	max-height: 23%;
+	min-height: 70px;
 	display: flex;
 	align-items: center;
 	padding: 5px;
@@ -235,18 +250,20 @@ body {
 .user_select_box {
 	display: flex;
 	flex-wrap: nowrap;
-	margin: auto;
+	margin: 10px auto;
+	height: 100%;
 }
 
 .user_select_box > .select_boxitem {
 	width: 210px;
-	height: 160px;
-	margin: 10px;
+	height: 100%;
+	margin: 0 10px;
 	background-color: azure;
 	border-radius: 8px;
 	position: relative;
 	flex-shrink: 0;
 	display: inline-block;
+	box-sizing: border-box;
 }
 
 .user_select_box .userDesktopCamera {
@@ -261,6 +278,7 @@ body {
 	bottom: 0;
 	width: 100%;
 	height: 100%;
+	transform: scaleX(-1);
 }
 
 .user_select_box > .select_boxitem[selected] {
@@ -272,6 +290,10 @@ body {
 	height: 100%;
 	position: relative;
 	margin-bottom: 7px;
+}
+
+.user_main_video .userCamera {
+	transform: scaleX(-1);
 }
 
 .user_main_video > video {
