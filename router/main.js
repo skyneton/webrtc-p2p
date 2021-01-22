@@ -6,6 +6,7 @@ module.exports = (app) => {
         if(req.session.room && session.data[req.session.room] && session.data[req.session.room].allow.includes(req.session.id)) {
             session.data[req.session.id].room = req.session.room;
         }
+        res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
         res.render('live', {
             title: "EDWOP LIVE",
             key: req.session.id

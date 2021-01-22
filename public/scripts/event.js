@@ -2,9 +2,10 @@ const isMobile = () => {
 	return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-if(isMobile()) {
+if(isMobile() && screen.orientation.type.startsWith("portrait")) {
     // document.getElementsByTagName("html")[0].setAttribute("isMobile", true);
-    screen.orientation.lock("landscape").catch(() => {});
+    // screen.orientation.lock("landscape").catch(() => {});
+    alertM("가로모드로 해주세요.");
 }
 
 document.getElementsByClassName("fullpagemode")[0].onclick = () => {
@@ -217,6 +218,10 @@ function userSearchAll() {
             userlist[i].setAttribute("hidden", true);
         }
     }
+}
+
+document.getElementsByClassName("defaultPageMove")[0].onclick = () => {
+    defaultModeChange();
 }
 
 const getFirstChar = char => {

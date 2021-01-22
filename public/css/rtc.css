@@ -57,8 +57,7 @@
 	display: none;
 }
 
-/*
-@media only screen and (orientation: portrait) {
+/*@media only screen and (orientation: portrait) {
 	html[isMobile] {
 		height: 100vw;
 		transform: rotate(90deg);
@@ -231,6 +230,7 @@ body {
 	flex-grow: 1;
 	display: none;
 	flex-direction: column;
+	position: relative;
 }
 
 .select_room > header {
@@ -597,4 +597,18 @@ body {
 	z-index: 10;
 	display: none;
 	margin: 7px;
+	cursor: pointer;
+}
+
+.defaultPageMove {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 7px;
+	margin: 10px;
+	padding: 7px;
+	cursor: pointer;
+}.defaultPageMove path {
+	fill: rgba(255, 255, 255, 0.8);
 }
