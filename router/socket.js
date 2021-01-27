@@ -29,7 +29,7 @@ module.exports = (io) => {
                     }
                 }
             }
-            if(session.data[client.token].allow.includes(client.key))
+            if(session.data[client.token].allow && session.data[client.token].allow.includes(client.key))
                 session.data[client.token].allow.splice(session.data[client.token].allow.indexOf(client.key), 1);
             client.emit("callClose");
             client.disconnect();
