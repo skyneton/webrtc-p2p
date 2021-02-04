@@ -18,7 +18,7 @@ module.exports = (io) => {
         });
 
         client.on("callClose", () => {
-            if(client.room && io.sockets.adapter.rooms[client.room] && client.room == client.key) {
+            if(client.room && io.sockets.adapter.rooms[client.room] && session.data[client.key] && client.room == session.data[client.key].uid) {
                 for(const sockets in io.sockets.adapter.rooms[client.room].sockets) {
                     if(sockets != client.id) {
                         const player = io.sockets.connected[sockets];
@@ -29,8 +29,8 @@ module.exports = (io) => {
                     }
                 }
             }
-            if(session.data[client.token].allow && session.data[client.token].allow.includes(client.key))
-                session.data[client.token].allow.splice(session.data[client.token].allow.indexOf(client.key), 1);
+            if(session.data[client.key] && io.sockets.adapter.rooms[client.room] && io.sockets.adapter.rooms[client.room].allow && io.sockets.adapter.rooms[client.room].allow.includes(session.data[client.key].uid))
+                io.sockets.adapter.rooms[client.room].allow.splice(io.sockets.adapter.rooms[client.room].allow.indexOf(session.data[client.key].uid), 1);
             client.emit("callClose");
             client.disconnect();
         });
@@ -44,19 +44,19 @@ module.exports = (io) => {
                 client.emit("serverError", 2);
                 client.disconnect();
                 return;
-            }//if(!session.data[key].uid) {
-            //     client.emit("serverError", 3);
-            //     client.disconnect();
-            //     return;
-            // }
-            // for(const skey in session.data) {
-            //     if(skey == key) continue;
-            //     if(session.data[skey] == session.data[key]) {
-            //         client.emit("serverError", 4);
-            //         client.disconnect();
-            //         return;
-            //     }
-            // }
+            }if(session.data[key].uid == null || session.data[key].uid == undefined) {
+                client.emit("serverError", 3);
+                client.disconnect();
+                return;
+            }
+            for(const skey in session.data) {
+                if(skey == key) continue;
+                if(session.data[skey].uid == session.data[key].uid) {
+                    client.emit("serverError", 4);
+                    client.disconnect();
+                    return;
+                }
+            }
 
             client.key = key;
             if(client.room) {
@@ -68,13 +68,12 @@ module.exports = (io) => {
             if(session.data[client.key].room) {
                 if(io.sockets.adapter.rooms[session.data[client.key].room]) {
                     client.room = session.data[client.key].room;
-                    client.token = session.data[client.key].room;
                 }else
                     client.emit("serverMsg", {"type": 1, "message": "삭제되었거나 존재하지 않는 방입니다." });
             }
 
             if(!client.room)
-                client.room = key;
+                client.room = session.data[key].uid;
 
             client.join(client.room);
             session.used.push(key);
@@ -85,9 +84,9 @@ module.exports = (io) => {
 
         client.on("createToken", () => {
             if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
-            if(client.room == client.key) {
-                session.data[client.key].token = createRandomToken();
-                client.emit("createToken", `${client.key}/${session.data[client.key].token}`);
+            if(session.data[client.key] && client.room == session.data[client.key].uid) {
+                io.sockets.adapter.rooms[client.room].token = createRandomToken();
+                client.emit("createToken", `${client.room}/${io.sockets.adapter.rooms[client.room]}`);
             }
         });
 

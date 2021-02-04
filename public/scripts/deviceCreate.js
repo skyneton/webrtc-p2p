@@ -153,6 +153,8 @@ const userBoxCreate = (uid, name) => {
 
 	if(container_loc.getElementsByClassName(`containerbox_${uid}`).length == 0) {
 		const container_box = document.createElement("div");
+		if(uid == socket.id)
+			container_box.setAttribute("me", true);
 		container_box.setAttribute("class", `containerbox_${uid} container_boxitem`);
 		const container_shape = document.createElement("div");
 		container_shape.setAttribute("class", "container_boxshape");
@@ -189,6 +191,8 @@ const userBoxCreate = (uid, name) => {
 
 	if(topbar_loc.getElementsByClassName(`selectbox_${uid}`).length == 0) {
 		const topbar_box = document.createElement("div");
+		if(uid == socket.id)
+			topbar_box.setAttribute("me", true);
 		topbar_box.setAttribute("class", `selectbox_${uid} select_boxitem`);
 
 		const name_tag = document.createElement("span");
@@ -234,6 +238,8 @@ const userBoxCreate = (uid, name) => {
 
 	if(user_loc.getElementsByClassName(`userlistbox_${uid}`).length == 0) {
 		const user_box = document.createElement("div");
+		if(uid == socket.id)
+			user_box.setAttribute("me", true);
 		user_box.setAttribute("class", `userlistbox_${uid} userlistItem`);
 
 		const name_tag = document.createElement("span");

@@ -37,7 +37,10 @@ socket.on("serverError", id => {
         case 2:
             alertM("존재하지 않는 키값입니다."); break;
         case 3:
-            alertM("로그인을 해주세요"); break;
+            alertM("로그인을 해주세요").then(() => {
+                location.href = "/edu/member/login/live";
+            });
+            break;
         case 4:
             alertM("계정이 사용중입니다."); break;
     }
