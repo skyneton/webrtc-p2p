@@ -12,6 +12,10 @@ module.exports = (app, io) => {
             title: "EDWOP LIVE",
             key: req.session.id
         });
+
+        req.on("close", () => {
+            delete session.data[req.session.id];
+        });
     });
 
     app.get('/live/:room/:random', (req, res) => {

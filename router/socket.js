@@ -9,6 +9,11 @@ module.exports = (io) => {
             if(client.room) {
                 sendPacketInRoom(client.room, "PlayerDisconnection", client.id);
                 if(io.sockets.adapter.rooms[client.room]) client.leave(client.room);
+
+                if(io.sockets.adapter.rooms[client.room] && io.sockets.adapter.rooms[client.room].allow && io.sockets.adapter.rooms[client.room].allow.includes(session.data[client.key].uid))
+                    io.sockets.adapter.rooms[client.room].allow.splice(io.sockets.adapter.rooms[client.room].allow.indexOf(session.data[client.key].uid), 1);
+                if(io.sockets.adapter.rooms[client.room] && io.sockets.adapter.rooms[client.room].sockets.length <= 0)
+                    delete io.sockets.adapter.rooms[client.room]
             }
 
             if(client.key) {
@@ -44,7 +49,7 @@ module.exports = (io) => {
                 client.emit("serverError", 2);
                 client.disconnect();
                 return;
-            }if(session.data[key].uid == null || session.data[key].uid == undefined) {
+            }/*if(session.data[key].uid == null || session.data[key].uid == undefined) {
                 client.emit("serverError", 3);
                 client.disconnect();
                 return;
@@ -56,7 +61,7 @@ module.exports = (io) => {
                     client.disconnect();
                     return;
                 }
-            }
+            }*/
 
             client.key = key;
             if(client.room) {
