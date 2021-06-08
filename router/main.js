@@ -3,7 +3,7 @@ const crypto = require("crypto");
 
 module.exports = (app, io) => {
     app.get('/live', (req, res) => {
-        session.data[req.session.id] = { "name": req.session.name, "uid": req.session.uid };
+        session.data[req.session.id] = { "name": req.session.name, "uid": req.session.id };
         if(req.session.room && io.sockets.adapter.rooms[req.session.room] && io.sockets.adapter.rooms[req.session.room].allow.includes(req.session.uid)) {
             session.data[req.session.uid].room = req.session.room;
         }
@@ -11,10 +11,6 @@ module.exports = (app, io) => {
         res.render('live', {
             title: "EDWOP LIVE",
             key: req.session.id
-        });
-
-        req.on("close", () => {
-            delete session.data[req.session.id];
         });
     });
 

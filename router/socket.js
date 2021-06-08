@@ -91,7 +91,7 @@ module.exports = (io) => {
             if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(session.data[client.key] && client.room == session.data[client.key].uid) {
                 io.sockets.adapter.rooms[client.room].token = createRandomToken();
-                client.emit("createToken", `${client.room}/${io.sockets.adapter.rooms[client.room]}`);
+                client.emit("createToken", `${client.room}/${io.sockets.adapter.rooms[client.room].token}`);
             }
         });
 
