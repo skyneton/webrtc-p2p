@@ -57,6 +57,10 @@ module.exports = (io) => {
             for(const skey in session.data) {
                 if(skey == key) continue;
                 if(session.data[skey].uid == session.data[key].uid) {
+                    if(!session.data[skey].socket || io.sockets.connected[session.data[skey.socket]]) {
+                        delete session.data[skey];
+                        continue;
+                    }
                     client.emit("serverError", 4);
                     client.disconnect();
                     return;
@@ -85,6 +89,7 @@ module.exports = (io) => {
 
             socketEmitNotPlayer(client.room, client.id, "PlayerConnection", client.id, session.data[client.key].name);
             client.emit("JoinRoom", client.id, session.data[client.key].name);
+            socket.data[client.key].socket = client.id;
         });
 
         client.on("createToken", () => {
