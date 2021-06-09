@@ -8,6 +8,8 @@ app.engine('html', require('ejs').renderFile);
 app.use(express.static('public'));
 app.use(require("./router/session").session);
 
+app.use(require("cookie-parser")()); //쿠키 사용
+
 const bodyParser = require('body-parser'); //POST 방식 사용시
 app.use(bodyParser.urlencoded({extended: true}));
 

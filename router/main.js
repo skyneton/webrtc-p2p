@@ -15,6 +15,9 @@ module.exports = (app, io) => {
     });
 
     app.get('/live/:room/:random', (req, res) => {
+        res.cookie("URL", "TEST", { maxAge: 600000, HttpOnly: true });
+        console.log(req.cookies);
+
         if(io.sockets.adapter.rooms[req.params.room] && io.sockets.adapter.rooms[req.params.room].token && io.sockets.adapter.rooms[req.params.room].token == req.params.random && !io.sockets.adapter.rooms[req.params.room].allow.includes(req.session.uid)) {
             req.session.room = req.params.room;
             io.sockets.adapter.rooms[req.params.room].allow.push(req.session.uid);
@@ -23,6 +26,8 @@ module.exports = (app, io) => {
     });
 
     app.post('/userdata', (req, res) => {
+        console.log(req.cookies);
+
         if(!req.body || not(req.body.key) || not(res.session.ukey) || not(res.session.uid) || not(res.session.name) || not(req.body.name) || not(req.body.uid) || !req.session.error) return;
 		if(res.session.ukey != req.body.key) {
 			req.session.error = 1;

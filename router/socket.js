@@ -89,7 +89,7 @@ module.exports = (io) => {
 
             socketEmitNotPlayer(client.room, client.id, "PlayerConnection", client.id, session.data[client.key].name);
             client.emit("JoinRoom", client.id, session.data[client.key].name);
-            socket.data[client.key].socket = client.id;
+            session.data[client.key].socket = client.id;
         });
 
         client.on("createToken", () => {
