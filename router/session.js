@@ -7,3 +7,4 @@ module.exports.session = session({
 
 module.exports.used = [];
 module.exports.data = [];
+module.exports.tokens = [];

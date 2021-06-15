@@ -40,7 +40,7 @@ socket.on("serverError", id => {
             alertM("로그인을 해주세요").then(() => {
                 location.href = "/edu/member/login/live";
             });
-            break;
+			break;
         case 4:
             alertM("계정이 사용중입니다."); break;
     }

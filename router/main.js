@@ -1,12 +1,26 @@
 const session = require("./session");
+const express = require('express');
+const path = require("path");
 const crypto = require("crypto");
 
 module.exports = (app, io) => {
+	
+	app.get('/edu', (req, res) => {
+		res.render('edu');
+    });
+    
+    app.get('/edu/*', (req, res) => {
+		res.render('edu');
+        //res.send(express.static(path.join(__dirname, '../build/index.html')));
+    });
+	
     app.get('/live', (req, res) => {
-        session.data[req.session.id] = { "name": req.session.name, "uid": req.session.id };
-        if(req.session.room && io.sockets.adapter.rooms[req.session.room] && io.sockets.adapter.rooms[req.session.room].allow.includes(req.session.uid)) {
-            session.data[req.session.uid].room = req.session.room;
-        }
+        //session.data[req.session.id] = { "name": req.session.name, "uid": req.session.uid };
+        session.data[req.session.id] = { "name": "익명", "uid": req.session.id };
+        if(req.session.room && io.sockets.adapter.rooms[req.session.room] && io.sockets.adapter.rooms[req.session.room].allow.includes(req.session.id)) {
+            session.data[req.session.id].room = req.session.room;
+        }else
+			session.data[req.session.id].allow = [];
         res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
         res.render('live', {
             title: "EDWOP LIVE",
@@ -15,23 +29,35 @@ module.exports = (app, io) => {
     });
 
     app.get('/live/:room/:random', (req, res) => {
-        if(io.sockets.adapter.rooms[req.params.room] && io.sockets.adapter.rooms[req.params.room].token && io.sockets.adapter.rooms[req.params.room].token == req.params.random && !io.sockets.adapter.rooms[req.params.room].allow.includes(req.session.uid)) {
+        if(io.sockets.adapter.rooms[req.params.room] && io.sockets.adapter.rooms[req.params.room].token && io.sockets.adapter.rooms[req.params.room].token == req.params.random && (!io.sockets.adapter.rooms[req.params.room].allow || !io.sockets.adapter.rooms[req.params.room].allow.includes(req.session.uid))) {
             req.session.room = req.params.room;
             io.sockets.adapter.rooms[req.params.room].allow.push(req.session.uid);
+			const url = `/live/${req.params.room}/${req.params.random}`;
+			res.cookie("URL", url, { maxAge: 600000, HttpOnly: true });
+        }
+        res.redirect("/live");
+    });
+
+    app.get('/live/:random', (req, res) => {
+        if(io.sockets.adapter.rooms[session.tokens[req.params.random]]
+            && io.sockets.adapter.rooms[session.tokens[req.params.random]].token
+            && io.sockets.adapter.rooms[session.tokens[req.params.random]].token == req.params.random
+            && (!io.sockets.adapter.rooms[session.tokens[req.params.random]].allow || !io.sockets.adapter.rooms[session.tokens[req.params.random]].allow.includes(req.session.id))) {
+            req.session.room = session.tokens[req.params.random];
+            io.sockets.adapter.rooms[req.session.room].allow.push(req.session.id);
+			const url = `/live/${req.params.random}`;
+			res.cookie("URL", url, { maxAge: 600000, HttpOnly: true });
         }
         res.redirect("/live");
     });
 
     app.post('/userdata', (req, res) => {
-        console.log(req.cookies);
-
-        if(!req.body || not(req.body.key) || not(res.session.ukey) || not(res.session.uid) || not(res.session.name) || not(req.body.name) || not(req.body.uid) || !req.session.error) return;
-		if(res.session.ukey != req.body.key) {
-			req.session.error = 1;
-			return;
-        }
+		if(!not(req.session.name) && !not(req.session.uid)) return;
+        if(!req.body || not(req.body.name) || not(req.body.uid)) return;
         req.session.name = req.body.name;
         req.session.uid = req.body.uid;
+		if(!not(req.cookies.URL)) res.redirect(req.cookies.URL);
+		else res.redirect("/live");
     });
 	
 	app.post('/out', (req, res) => {
@@ -40,6 +66,10 @@ module.exports = (app, io) => {
 		if(!not(req.session.uid))
 			delete req.session.uid;
 	});
+    
+    app.get('/*', (req, res) => {
+        res.redirect("/edu");
+    });
 }
 
 const createRandomToken = () => {

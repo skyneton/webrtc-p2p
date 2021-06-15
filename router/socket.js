@@ -49,7 +49,7 @@ module.exports = (io) => {
                 client.emit("serverError", 2);
                 client.disconnect();
                 return;
-            }/*if(session.data[key].uid == null || session.data[key].uid == undefined) {
+            }if(session.data[key].uid == null || session.data[key].uid == undefined) {
                 client.emit("serverError", 3);
                 client.disconnect();
                 return;
@@ -65,7 +65,7 @@ module.exports = (io) => {
                     client.disconnect();
                     return;
                 }
-            }*/
+            }
 
             client.key = key;
             if(client.room) {
@@ -81,10 +81,13 @@ module.exports = (io) => {
                     client.emit("serverMsg", {"type": 1, "message": "삭제되었거나 존재하지 않는 방입니다." });
             }
 
-            if(!client.room)
+            if(!client.room) {
                 client.room = session.data[key].uid;
-
-            client.join(client.room);
+				client.join(client.room);
+				io.sockets.adapter.rooms[client.room].allow = [];
+			}else
+				client.join(client.room);
+			
             session.used.push(key);
 
             socketEmitNotPlayer(client.room, client.id, "PlayerConnection", client.id, session.data[client.key].name);
@@ -95,8 +98,13 @@ module.exports = (io) => {
         client.on("createToken", () => {
             if(!client.room || !io.sockets.adapter.rooms[client.room]) return;
             if(session.data[client.key] && client.room == session.data[client.key].uid) {
-                io.sockets.adapter.rooms[client.room].token = createRandomToken();
-                client.emit("createToken", `${client.room}/${io.sockets.adapter.rooms[client.room].token}`);
+				
+                const token = createRandomToken();
+                session.tokens[token] = client.room;
+                io.sockets.adapter.rooms[client.room].token = token;
+				
+                //client.emit("createToken", `${client.room}/${io.sockets.adapter.rooms[client.room].token}`);
+                client.emit("createToken", `${token}`);
             }
         });
 
@@ -222,5 +230,6 @@ const splitTagsReverse = (data) => {
 };
 
 const createRandomToken = () => {
-    return crypto.randomBytes(28).toString("hex");
+    return crypto.randomBytes(4).toString("hex");
+    //return crypto.randomBytes(28).toString("hex");
 }
