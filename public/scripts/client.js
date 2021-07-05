@@ -16,6 +16,10 @@ window.onbeforeunload = () => {
 socket.on("connect", () => {
     socket.emit("session", key.get());
     key = undefined;
+    setInterval(() => {
+		socket.emit("alive");
+		console.log("alive");
+	}, 10000);
 });
 
 socket.on("disconnect", () => {

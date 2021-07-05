@@ -69,7 +69,7 @@ const userDesktopVideoCreate = (stream, uid) => {
     else
         e.src = window.URL.createObjectURL(stream);
 	
-	if(videoLock)
+	if(videoLock && selectSid.get() != uid)
 		document.getElementsByClassName("user_select_box")[0].getElementsByClassName(`selectbox_${uid}`)[0].appendChild(e);
 	else
 		selectModeChange(uid, e);

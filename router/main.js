@@ -5,15 +5,6 @@ const crypto = require("crypto");
 
 module.exports = (app, io) => {
 	
-	app.get('/edu', (req, res) => {
-		res.render('edu');
-    });
-    
-    app.get('/edu/*', (req, res) => {
-		res.render('edu');
-        //res.send(express.static(path.join(__dirname, '../build/index.html')));
-    });
-	
     app.get('/live', (req, res) => {
         //session.data[req.session.id] = { "name": req.session.name, "uid": req.session.uid };
         session.data[req.session.id] = { "name": "익명", "uid": req.session.id };
@@ -66,10 +57,6 @@ module.exports = (app, io) => {
 		if(!not(req.session.uid))
 			delete req.session.uid;
 	});
-    
-    app.get('/*', (req, res) => {
-        res.redirect("/edu");
-    });
 }
 
 const createRandomToken = () => {
