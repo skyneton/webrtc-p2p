@@ -25,6 +25,16 @@ const io = require("socket.io").listen(server);
 require('./router/socket')(io);
 require('./router/main')(app, io);
 
+const turn = require("node-turn");
+new turn({
+	listeningPort: 5349,
+	listeningIps: ["0.0.0.0"],
+	authMech: "long-term",
+	credentials: {
+		"turnserver": "turnserver"
+	}
+}).start();
+
 //function
 const log = msg => {
 	const logDate = new Date();

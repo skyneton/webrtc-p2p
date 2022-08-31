@@ -42,14 +42,18 @@ module.exports = (io) => {
         
         client.on("session", key => {
             if(session.used.includes(key)) {
+                // session already exists
                 client.emit("serverError", 1);
                 client.disconnect();
                 return;
             }if(!session.data[key]) {
+                // session key is invalid
                 client.emit("serverError", 2);
                 client.disconnect();
                 return;
-            }if(session.data[key].uid == null || session.data[key].uid == undefined) {
+            } if (session.data[key].uid == null) {
+                // if use OAuth, change router/main.js.
+                // session is not logged in
                 client.emit("serverError", 3);
                 client.disconnect();
                 return;

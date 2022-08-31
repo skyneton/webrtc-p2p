@@ -3,9 +3,9 @@ const worker = [];
 
 const configure = {
     iceServers: [{
-        urls: `stun:live.edcan.kr:5349`
+        urls: `stun:${location.host}:5349`
     }, {
-        urls: `turn:live.edcan.kr:5349`,
+        urls: `turn:${location.host}:5349`,
         credential: 'turnserver',
         username: 'turnserver'
     }]
